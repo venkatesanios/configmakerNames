@@ -65,7 +65,7 @@ class _NameconfigState extends State<Nameconfig> {
         padding: EdgeInsets.all(8.0),
         child: Scaffold(
           appBar: AppBar(
-            title: Text('Names Config'),
+            title: Text('Names Config Maker'),
             backgroundColor: const Color.fromARGB(255, 158, 208, 233),
             bottom: TabBar(
               indicatorColor: Color.fromARGB(255, 175, 73, 73),
@@ -80,9 +80,9 @@ class _NameconfigState extends State<Nameconfig> {
             ),
           ),
           body: Container(
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 181, 244, 237),
-            ),
+            // decoration: BoxDecoration(
+            //   color: Color.fromARGB(255, 181, 244, 237),
+            //  ),
             child: TabBarView(
               children: [
                 for (int i = 0; i < headinglist.length; i++)
@@ -122,38 +122,41 @@ class _NameconfigState extends State<Nameconfig> {
           ],
         )),
         Flexible(
-          child: ListView.builder(
-            itemCount: itemcount,
-            itemBuilder: (context, index) {
-              return Column(
-                children: [
-                  Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(), color: Colors.amber),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          for (int i = 0; i < heading.length; i++)
-                            Expanded(
-                              child: Container(
-                                child: TextFormField(
-                                  readOnly: heading[i].toString() == 'Name'
-                                      ? false
-                                      : true,
-                                  initialValue: Namechech(
-                                      heading[i].toString(), index + 1, name),
-                                  textAlign: TextAlign.center,
-                                  onChanged: (value) {
-                                    // print(value);
-                                  },
-                                ),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 70),
+            child: ListView.builder(
+              itemCount: itemcount,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    Container(
+                        // decoration: BoxDecoration(
+                        //     border: Border.all(), color: Colors.amber),
+                        child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        for (int i = 0; i < heading.length; i++)
+                          Expanded(
+                            child: Container(
+                              child: TextFormField(
+                                readOnly: heading[i].toString() == 'Name'
+                                    ? false
+                                    : true,
+                                initialValue: Namechech(
+                                    heading[i].toString(), index + 1, name),
+                                textAlign: TextAlign.center,
+                                onChanged: (value) {
+                                  // print(value);
+                                },
                               ),
                             ),
-                        ],
-                      )),
-                ],
-              );
-            },
+                          ),
+                      ],
+                    )),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ],
