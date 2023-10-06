@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nameconfig/service/call.dart';
 import 'package:nameconfig/nameconfig/name_config_view.dart';
-import 'package:nameconfig/nameconfig/nameconfig.dart';
-import 'package:nameconfig/nameconfig/test.dart';
 
 void main() {
   runApp(const MyApp());

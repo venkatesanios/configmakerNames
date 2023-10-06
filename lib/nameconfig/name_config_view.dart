@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:nameconfig/nameconfig/name_config_model.dart';
+import 'package:nameconfig/service/http_services.dart';
 
 class NameConfigWidget extends StatefulWidget {
   const NameConfigWidget({super.key});
@@ -32,31 +36,40 @@ class Nameconfig extends StatefulWidget {
 }
 
 class _NameconfigState extends State<Nameconfig> {
-  final List<String> headinglist = [
-    'Water Source',
-    'Water Pump',
-    'Irrigation Line',
-    'Valve Default',
-    'Irrigation Valve',
-    'Main Valve',
-    'Dosing Site',
-    'Filtration Site',
-    'Fertilizer',
-    'Dosing Meter',
-    'Fertilizer Set',
-    'Filter',
-    'Interface',
-    'Program',
-    'Satellite',
-    'Analog Sensor',
-    'Contact',
-    'Pressure Sensor',
-    'Differential Pressure Sensor',
-    'Valve Group',
-    'Water Meter',
-    'Alarm',
-    'Condition',
-  ];
+  ///Users/user/Desktop/flutter/configmakerNames/lib/nameconfig/api.json
+  List<String> headinglist = [];
+
+  NamesModel data = NamesModel();
+  List<Datum>? namesdata;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    Map<String, Object> body = {"userId": '1', "controllerId": '1'};
+    final response = await HttpService().postRequest("getUserName", body);
+    final jsonData = json.decode(response);
+
+    try {
+      setState(() {
+        data = NamesModel.fromJson(jsonData);
+        // print(data.toJson());
+        namesdata = data.data!;
+        print(namesdata?.length);
+
+        for (var i = 0; i < data.data!.length; i++) {
+          headinglist.add(jsonData['data'][i]['nameDescription'].toString());
+        }
+      });
+    } catch (e) {
+      // Handle error
+      print('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -71,9 +84,9 @@ class _NameconfigState extends State<Nameconfig> {
               indicatorColor: Color.fromARGB(255, 175, 73, 73),
               isScrollable: true,
               tabs: [
-                for (int i = 0; i < headinglist.length; i++)
+                for (int i = 0; i < namesdata!.length; i++)
                   Tab(
-                    text: headinglist[i].toString(),
+                    text: namesdata?[i].nameDescription.toString() ?? '',
                     // icon: Icon(Icons.ac_unit),
                   ),
               ],
@@ -85,7 +98,7 @@ class _NameconfigState extends State<Nameconfig> {
             //  ),
             child: TabBarView(
               children: [
-                for (int i = 0; i < headinglist.length; i++)
+                for (int i = 0; i < namesdata!.length; i++)
                   buildTab(['ID', 'Location', 'Name'],
                       headinglist[i].toString(), i + 1),
               ],
@@ -130,8 +143,6 @@ class _NameconfigState extends State<Nameconfig> {
                 return Column(
                   children: [
                     Container(
-                        // decoration: BoxDecoration(
-                        //     border: Border.all(), color: Colors.amber),
                         child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -145,9 +156,7 @@ class _NameconfigState extends State<Nameconfig> {
                                 initialValue: Namechech(
                                     heading[i].toString(), index + 1, name),
                                 textAlign: TextAlign.center,
-                                onChanged: (value) {
-                                  // print(value);
-                                },
+                                onChanged: (value) {},
                               ),
                             ),
                           ),
