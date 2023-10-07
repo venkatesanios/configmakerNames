@@ -5,135 +5,97 @@
         {
             "nameTypeId": 1,
             "nameDescription": "Source Pump",
-            "userName": [
-                "{\"data\": [{\"id\": \"SP1\", \"location\": \"\", \"name\": \"Source Pump 1\"},{\"id\": \"SP2\", \"location\": \"\", \"name\": \"Source Pump 2\"}]}"
-            ]
+            "userName": "{\"data\": [{\"id\": \"SP1\", \"location\": \"\", \"name\": \"Source Pump 1\"},{\"id\": \"SP2\", \"location\": \"\", \"name\": \"Source Pump 2\"}]}"
         },
         {
             "nameTypeId": 2,
             "nameDescription": "Irrigation Pump",
-            "userName": [
-                "{\"data\": [{\"id\": \"IP1\", \"location\": \"\", \"name\": \"Irrigation Pump 1\"},{\"id\": \"IP2\", \"location\": \"\", \"name\": \"Irrigation Pump 2\"}]}"
-            ]
+            "userName": "{\"data\": [{\"id\": \"IP1\", \"location\": \"\", \"name\": \"Irrigation Pump 1\"},{\"id\": \"IP2\", \"location\": \"\", \"name\": \"Irrigation Pump 2\"}]}"
         },
         {
             "nameTypeId": 3,
             "nameDescription": "Central Fertilizer",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFE1\", \"location\": \"\", \"name\": \"Center Fertilizer 1\"}]}"
-            ]
+            "userName": "{\"data\": [{\"id\": \"CFE1\", \"location\": \"\", \"name\": \"Center Fertilizer 1\"}]}"
         },
         {
             "nameTypeId": 4,
             "nameDescription": "Central Filter",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Center Filter 1\"}]}"
-            ]
+            "userName": "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Center Filter 1\"}]}"
         },
         {
             "nameTypeId": 5,
             "nameDescription": "Irrigation Line",
-            "userName": [
-                "{\"data\": [{\"id\": \"IL1\", \"location\": \"\", \"name\": \"Irrigation Line 1\"},{\"id\": \"IL2\", \"location\": \"\", \"name\": \"Irrigation Line 2\"}]}"
-            ]
+            "userName": "{\"data\": [{\"id\": \"IL1\", \"location\": \"\", \"name\": \"Irrigation Line 1\"},{\"id\": \"IL2\", \"location\": \"\", \"name\": \"Irrigation Line 2\"}]}"
         },
         {
             "nameTypeId": 6,
             "nameDescription": "Local Fertilizer",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Local Fertilizer 1\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 7,
             "nameDescription": "Local Filrer",
-            "userName": [
-                "{\"data\": [{\"id\": \"IP1\", \"location\": \"\", \"name\": \"Local Filrer 1\"},{\"id\": \"IP2\", \"location\": \"\", \"name\": \"Local Filrer 2\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 8,
             "nameDescription": "Weather Station",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Weather Station 1\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 9,
             "nameDescription": "Valve",
-            "userName": [
-                "{\"data\": [{\"id\": \"IP1\", \"location\": \"\", \"name\": \"Valve 1\"},{\"id\": \"IP2\", \"location\": \"\", \"name\": \"Valve 2\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 10,
             "nameDescription": "Valve Group",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Valve Group 1\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 11,
             "nameDescription": "Analog Sensor",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Analog Sensor 1\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 12,
             "nameDescription": "Moisture Sensor",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Moisture Sensor 1\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 13,
             "nameDescription": "Level Sensor",
-            "userName": [
-                "{\"data\": [{\"id\": \"IP1\", \"location\": \"\", \"name\": \"Level Sensor1\"},{\"id\": \"IP2\", \"location\": \"\", \"name\": \"Level Sensor 2\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 14,
             "nameDescription": "Interface",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Interface 1\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 15,
             "nameDescription": "Water Meter",
-            "userName": [
-                "{\"data\": [{\"id\": \"IP1\", \"location\": \"\", \"name\": \"Water Meter 1\"},{\"id\": \"IP2\", \"location\": \"\", \"name\": \"Water Meter 2\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 16,
             "nameDescription": "Virtual Water Meter",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Virtual Water Meter 1\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 17,
             "nameDescription": "Contact",
-            "userName": [
-                "{\"data\": [{\"id\": \"IP1\", \"location\": \"\", \"name\": \"Contact 1\"},{\"id\": \"IP2\", \"location\": \"\", \"name\": \"Contact 2\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 18,
             "nameDescription": "Condition",
-            "userName": [
-                "{\"data\": [{\"id\": \"CFI1\", \"location\": \"\", \"name\": \"Condition 1\"}]}"
-            ]
+            "userName": ""
         },
         {
             "nameTypeId": 19,
             "nameDescription": "Program",
-            "userName": [
-                "{\"data\": [{\"id\": \"P1\", \"location\": \"\", \"name\": \"Program 1\"},{\"id\": \"P2\", \"location\": \"\", \"name\": \"Program 2\"}]}"
-            ]
+            "userName": ""
         }
     ]
 }

@@ -5,23 +5,24 @@ import 'package:nameconfig/nameconfig/name_config_model.dart';
 import 'package:nameconfig/service/http_services.dart';
 
 class NameConfigWidget extends StatefulWidget {
-  const NameConfigWidget({super.key});
+  const NameConfigWidget({Key? key});
 
   @override
   State<NameConfigWidget> createState() => _NameConfigWidgetState();
 }
 
-class _NameConfigWidgetState extends State<NameConfigWidget> {
+class _NameConfigWidgetState extends State<NameConfigWidget>
+    with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth <= 800) {
           // Render mobile content
-          return Nameconfig();
+          return const Nameconfig();
         } else {
           // Render web content
-          return Nameconfig();
+          return const Nameconfig();
         }
       },
     );
@@ -29,18 +30,17 @@ class _NameConfigWidgetState extends State<NameConfigWidget> {
 }
 
 class Nameconfig extends StatefulWidget {
-  const Nameconfig({super.key});
+  const Nameconfig({Key? key});
 
   @override
   State<Nameconfig> createState() => _NameconfigState();
 }
 
-class _NameconfigState extends State<Nameconfig> {
-  ///Users/user/Desktop/flutter/configmakerNames/lib/nameconfig/api.json
-  List<String> headinglist = [];
-
+class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
+  List<dynamic> headinglist = [];
+  List<String> usernamelist = [];
   NamesModel data = NamesModel();
-  List<Datum>? namesdata;
+  dynamic jsondata;
 
   @override
   void initState() {
@@ -50,23 +50,15 @@ class _NameconfigState extends State<Nameconfig> {
 
   Future<void> fetchData() async {
     Map<String, Object> body = {"userId": '1', "controllerId": '1'};
-    final response = await HttpService().postRequest("getUserName", body);
+    final response = await HttpService()
+        .postRequest("getUserName", body); // await the HTTP request
     final jsonData = json.decode(response);
-
-    try {
+    jsondata = jsonData;
+    for (var i = 0; i < jsondata['data'].length; i++) {
       setState(() {
-        data = NamesModel.fromJson(jsonData);
-        // print(data.toJson());
-        namesdata = data.data!;
-        print(namesdata?.length);
-
-        for (var i = 0; i < data.data!.length; i++) {
-          headinglist.add(jsonData['data'][i]['nameDescription'].toString());
-        }
+        headinglist.add(jsonData['data'][i]['nameDescription']);
+        usernamelist.add(jsonData['data'][i]['userName']);
       });
-    } catch (e) {
-      // Handle error
-      print('Error: $e');
     }
   }
 
@@ -75,65 +67,82 @@ class _NameconfigState extends State<Nameconfig> {
     return DefaultTabController(
       length: headinglist.length,
       child: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Scaffold(
           appBar: AppBar(
-            title: Text('Names Config Maker'),
+            title: const Text('Names Config Maker'),
             backgroundColor: const Color.fromARGB(255, 158, 208, 233),
             bottom: TabBar(
-              indicatorColor: Color.fromARGB(255, 175, 73, 73),
+              indicatorColor: const Color.fromARGB(255, 175, 73, 73),
               isScrollable: true,
+              // controller: _tabController,
               tabs: [
-                for (int i = 0; i < namesdata!.length; i++)
+                for (int i = 0; i < headinglist.length; i++)
                   Tab(
-                    text: namesdata?[i].nameDescription.toString() ?? '',
-                    // icon: Icon(Icons.ac_unit),
+                    text: headinglist[i].toString(),
                   ),
               ],
+              onTap: (value) {
+                print(value);
+              },
             ),
           ),
           body: Container(
-            // decoration: BoxDecoration(
-            //   color: Color.fromARGB(255, 181, 244, 237),
-            //  ),
             child: TabBarView(
+              // controller: _tabController,
               children: [
-                for (int i = 0; i < namesdata!.length; i++)
-                  buildTab(['ID', 'Location', 'Name'],
-                      headinglist[i].toString(), i + 1),
+                for (int i = 0; i < headinglist.length; i++)
+                  usernamelist[i] == ""
+                      ? Container()
+                      : buildTab(
+                          ['ID', 'Location', 'Name'],
+                          usernamelist[i],
+                        ),
               ],
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              if (jsondata != null) {
+                print('jsondata-----------------send---------$jsondata');
+              } else {
+                print('jsondata is null');
+              }
+            },
             tooltip: 'Send',
-            child: Icon(Icons.send),
+            child: const Icon(Icons.send),
           ),
         ),
       ),
     );
   }
 
-  Widget buildTab(List<String> heading, String name, int itemcount) {
+  Widget buildTab(
+    List<String> heading,
+    String usernamedata,
+  ) {
+    dynamic json = usernamedata != "" ? jsonDecode(usernamedata) : {};
+    int titlecountcheck = 3;
+    int itemcount = json['data'].length;
     String namechech = '';
+    if (json['data'][0]['location'] == "") {
+      titlecountcheck = 2;
+    }
+
     return Column(
       children: [
         Container(
-            child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            for (int i = 0; i < heading.length; i++)
-              Expanded(
-                child: Container(
-                  child: TextFormField(
-                    readOnly: true,
-                    initialValue: heading[i].toString(),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-          ],
-        )),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: Center(child: Text('ID'))),
+              titlecountcheck == 3
+                  ? Expanded(child: Text('Location'))
+                  : Container(),
+              Expanded(child: Center(child: Text('Name'))),
+            ],
+          ),
+        ),
         Flexible(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 70),
@@ -143,25 +152,26 @@ class _NameconfigState extends State<Nameconfig> {
                 return Column(
                   children: [
                     Container(
-                        child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        for (int i = 0; i < heading.length; i++)
-                          Expanded(
-                            child: Container(
-                              child: TextFormField(
-                                readOnly: heading[i].toString() == 'Name'
-                                    ? false
-                                    : true,
-                                initialValue: Namechech(
-                                    heading[i].toString(), index + 1, name),
-                                textAlign: TextAlign.center,
-                                onChanged: (value) {},
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          for (int i = 0; i < heading.length; i++)
+                            Expanded(
+                              child: Container(
+                                child: TextFormField(
+                                  readOnly: heading[i].toString() == 'Name'
+                                      ? false
+                                      : true,
+                                  initialValue: Namechech(
+                                      heading[i].toString(), index + 1, 'Name'),
+                                  textAlign: TextAlign.center,
+                                  onChanged: (value) {},
+                                ),
                               ),
                             ),
-                          ),
-                      ],
-                    )),
+                        ],
+                      ),
+                    ),
                   ],
                 );
               },
@@ -173,16 +183,11 @@ class _NameconfigState extends State<Nameconfig> {
   }
 
   String Namechech(String headingtype, int i, String name) {
-    print(headingtype);
-    print(i);
     if (headingtype == 'ID') {
       return '$i';
-      print(name);
     } else if (headingtype == 'Location') {
-      print(headingtype);
       return 'Line$i';
     } else {
-      print(headingtype);
       return '$name$i';
     }
   }
