@@ -10,7 +10,7 @@
         {
             "nameTypeId": 2,
             "nameDescription": "Irrigation Pump",
-            "userName": "{\"data\": [{\"id\": \"IP1\", \"location\": \"\", \"name\": \"Irrigation Pump 1\"},{\"id\": \"IP2\", \"location\": \"\", \"name\": \"Irrigation Pump 2\"}]}"
+            "userName": "{\"data\": [{\"id\": \"IP1\", \"location\": \"Line\", \"name\": \"Irrigation Pump 1\"},{\"id\": \"IP2\", \"location\": \"Line\", \"name\": \"Irrigation Pump 2\"}]}"
         },
         {
             "nameTypeId": 3,

@@ -37,9 +37,6 @@ class Nameconfig extends StatefulWidget {
 }
 
 class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
-  List<dynamic> headinglist = [];
-  List<String> usernamelist = [];
-  NamesModel data = NamesModel();
   dynamic jsondata;
 
   @override
@@ -48,24 +45,34 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
     fetchData();
   }
 
+  // Future<void> fetchData1() async {
+  //   Map<String, Object> body = {"userId": '1', "controllerId": '1'};
+  //   final response = await HttpService()
+  //       .postRequest("getUserName", body); // await the HTTP request
+  //   setState(() {
+  //     jsondata = json.decode(response)['data'];
+  //   });
+  // }
+
   Future<void> fetchData() async {
     Map<String, Object> body = {"userId": '1', "controllerId": '1'};
-    final response = await HttpService()
-        .postRequest("getUserName", body); // await the HTTP request
-    final jsonData = json.decode(response);
-    jsondata = jsonData;
-    for (var i = 0; i < jsondata['data'].length; i++) {
+    final response = await HttpService().postRequest("getUserName", body);
+    print(jsonDecode(response.body));
+    if (response.statusCode == 200) {
       setState(() {
-        headinglist.add(jsonData['data'][i]['nameDescription']);
-        usernamelist.add(jsonData['data'][i]['userName']);
+        final jsondata1 = jsonDecode(response.body);
+        jsondata = jsondata1['data'];
+        print('-------------------$jsondata');
       });
+    } else {
+      //_showSnackBar(response.body);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: headinglist.length,
+      length: jsondata.length,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Scaffold(
@@ -77,9 +84,9 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
               isScrollable: true,
               // controller: _tabController,
               tabs: [
-                for (int i = 0; i < headinglist.length; i++)
+                for (var i = 0; i < jsondata.length; i++)
                   Tab(
-                    text: headinglist[i].toString(),
+                    text: jsondata[i]['nameDescription'].toString(),
                   ),
               ],
               onTap: (value) {
@@ -91,23 +98,28 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
             child: TabBarView(
               // controller: _tabController,
               children: [
-                for (int i = 0; i < headinglist.length; i++)
-                  usernamelist[i] == ""
+                for (int i = 0; i < jsondata.length; i++)
+                  jsondata[i]['userName'].length == 0
                       ? Container()
-                      : buildTab(
-                          ['ID', 'Location', 'Name'],
-                          usernamelist[i],
-                        ),
+                      : buildTab(jsondata[i]['userName'], i),
               ],
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              if (jsondata != null) {
-                print('jsondata-----------------send---------$jsondata');
-              } else {
-                print('jsondata is null');
-              }
+            onPressed: () async {
+              //  final senddata = reqJson['data'];
+              // final datatest = jsonEncode(senddata);
+
+              Map<String, Object> body = {
+                "userId": '1',
+                "controllerId": "1",
+                "userNameList": jsondata,
+                "createUser": "1"
+              };
+              print(body);
+              final response =
+                  await HttpService().postRequest("createUserName", body);
+              final jsonData = json.decode(response.body);
             },
             tooltip: 'Send',
             child: const Icon(Icons.send),
@@ -117,16 +129,13 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
     );
   }
 
-  Widget buildTab(
-    List<String> heading,
-    String usernamedata,
-  ) {
-    dynamic json = usernamedata != "" ? jsonDecode(usernamedata) : {};
+  Widget buildTab(List<dynamic> usernamedata, int t) {
+    List<String> heading = ['id', 'location', 'name'];
     int titlecountcheck = 3;
-    int itemcount = json['data'].length;
-    String namechech = '';
-    if (json['data'][0]['location'] == "") {
+    int itemcount = usernamedata.length;
+    if (usernamedata[0]['location'] == "") {
       titlecountcheck = 2;
+      heading = ['id', 'name'];
     }
 
     return Column(
@@ -135,11 +144,35 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(child: Center(child: Text('ID'))),
+              Expanded(
+                child: Container(
+                  child: TextFormField(
+                    readOnly: true,
+                    initialValue: 'ID',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
               titlecountcheck == 3
-                  ? Expanded(child: Text('Location'))
+                  ? Expanded(
+                      child: Container(
+                        child: TextFormField(
+                          readOnly: true,
+                          initialValue: 'Location',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
                   : Container(),
-              Expanded(child: Center(child: Text('Name'))),
+              Expanded(
+                child: Container(
+                  child: TextFormField(
+                    readOnly: true,
+                    initialValue: 'Name',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -159,13 +192,16 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
                             Expanded(
                               child: Container(
                                 child: TextFormField(
-                                  readOnly: heading[i].toString() == 'Name'
+                                  readOnly: heading[i].toString() == 'name'
                                       ? false
                                       : true,
-                                  initialValue: Namechech(
-                                      heading[i].toString(), index + 1, 'Name'),
+                                  initialValue: usernamedata[index][heading[i]],
                                   textAlign: TextAlign.center,
-                                  onChanged: (value) {},
+                                  onChanged: (value) {
+                                    setState(() {
+                                      usernamedata[index]['name'] = value;
+                                    });
+                                  },
                                 ),
                               ),
                             ),
@@ -180,15 +216,5 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
         ),
       ],
     );
-  }
-
-  String Namechech(String headingtype, int i, String name) {
-    if (headingtype == 'ID') {
-      return '$i';
-    } else if (headingtype == 'Location') {
-      return 'Line$i';
-    } else {
-      return '$name$i';
-    }
   }
 }
