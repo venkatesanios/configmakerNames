@@ -45,15 +45,6 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
     fetchData();
   }
 
-  // Future<void> fetchData1() async {
-  //   Map<String, Object> body = {"userId": '1', "controllerId": '1'};
-  //   final response = await HttpService()
-  //       .postRequest("getUserName", body); // await the HTTP request
-  //   setState(() {
-  //     jsondata = json.decode(response)['data'];
-  //   });
-  // }
-
   Future<void> fetchData() async {
     Map<String, Object> body = {"userId": '1', "controllerId": '1'};
     final response = await HttpService().postRequest("getUserName", body);
@@ -62,7 +53,6 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
       setState(() {
         final jsondata1 = jsonDecode(response.body);
         jsondata = jsondata1['data'];
-        print('-------------------$jsondata');
       });
     } else {
       //_showSnackBar(response.body);
@@ -107,9 +97,6 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
-              //  final senddata = reqJson['data'];
-              // final datatest = jsonEncode(senddata);
-
               Map<String, Object> body = {
                 "userId": '1',
                 "controllerId": "1",
@@ -133,6 +120,7 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
     List<String> heading = ['id', 'location', 'name'];
     int titlecountcheck = 3;
     int itemcount = usernamedata.length;
+
     if (usernamedata[0]['location'] == "") {
       titlecountcheck = 2;
       heading = ['id', 'name'];
@@ -178,9 +166,9 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
         ),
         Flexible(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 70),
+            padding: const EdgeInsets.only(bottom: 70, left: 10, right: 10),
             child: ListView.builder(
-              itemCount: itemcount,
+              itemCount: 5,
               itemBuilder: (context, index) {
                 return Column(
                   children: [
@@ -188,22 +176,9 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          for (int i = 0; i < heading.length; i++)
+                          for (int i = 0; i < 5; i++)
                             Expanded(
-                              child: Container(
-                                child: TextFormField(
-                                  readOnly: heading[i].toString() == 'name'
-                                      ? false
-                                      : true,
-                                  initialValue: usernamedata[index][heading[i]],
-                                  textAlign: TextAlign.center,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      usernamedata[index]['name'] = value;
-                                    });
-                                  },
-                                ),
-                              ),
+                              child: Container(),
                             ),
                         ],
                       ),
