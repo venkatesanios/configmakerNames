@@ -61,19 +61,19 @@ class _MyAppTestState extends State<MyAppTest> {
         "srno": 3,
         "id": 3,
         "name": "Line3",
-        "value": ["2", "2", "3", "4"]
+        "value": ["2", "5", "3", "4"]
       },
       {
         "srno": 4,
         "id": 4,
         "name": "Line4",
-        "value": ["3", "2", "3", "4"]
+        "value": ["3", "2", "5", "4"]
       },
       {
         "srno": 5,
         "id": 5,
         "name": "Line5",
-        "value": ["4", "2", "3", "4"]
+        "value": ["4", "2", "3", "5"]
       }
     ]
   };
@@ -233,41 +233,40 @@ class _MyAppTestState extends State<MyAppTest> {
                                         ?.length) ??
                                     0,
                                 itemBuilder: (context, innerIndex) {
-                                  bool isSelected = selectedValuesList[index]
-                                      .contains('$index.$innerIndex');
-                                  print(jsondata['line']![index]['value'][1]);
-                                  // print(jsondata['line']![index]['value']
-                                  // [innerIndex]);
                                   String vname = jsondata['line']![index]
                                           ['value'][innerIndex]
                                       .toString();
+                                  bool isSelected = selectedValuesList[index]
+                                      .contains('$index.$vname');
                                   return GestureDetector(
                                     onTap: () {
                                       setState(() {
-                                        if (oldindex != -1 &&
-                                            oldindex != index) {
-                                          orderedSelectedValues.clear();
-                                        }
-                                        if (isSelected) {
-                                          selectedValuesList[index]
-                                              .remove('$index.$innerIndex');
-                                          orderedSelectedValues
-                                              .remove('$index.$innerIndex');
-                                        } else {
-                                          selectedValuesList[index]
-                                              .add('$index.$innerIndex');
-                                          orderedSelectedValues
-                                              .add('$index.$innerIndex');
-                                        }
-
-                                        for (int i = 0;
-                                            i < selectedValuesList.length;
-                                            i++) {
-                                          if (i != index) {
-                                            selectedValuesList[i].clear();
+                                        if (selectedgroupIndex != -1) {
+                                          if (oldindex != -1 &&
+                                              oldindex != index) {
+                                            orderedSelectedValues.clear();
                                           }
+                                          if (isSelected) {
+                                            selectedValuesList[index]
+                                                .remove('$index.$vname');
+                                            orderedSelectedValues
+                                                .remove('$index.$vname');
+                                          } else {
+                                            selectedValuesList[index]
+                                                .add('$index.$vname');
+                                            orderedSelectedValues
+                                                .add('$index.$vname');
+                                          }
+
+                                          for (int i = 0;
+                                              i < selectedValuesList.length;
+                                              i++) {
+                                            if (i != index) {
+                                              selectedValuesList[i].clear();
+                                            }
+                                          }
+                                          oldindex = index;
                                         }
-                                        oldindex = index;
                                       });
                                     },
                                     child: Container(
@@ -278,7 +277,7 @@ class _MyAppTestState extends State<MyAppTest> {
                                           backgroundColor: isSelected
                                               ? Colors.amber
                                               : Colors.blueGrey,
-                                          child: Text('${innerIndex + 1}'),
+                                          child: Text('$vname'),
                                         ),
                                       ),
                                     ),
