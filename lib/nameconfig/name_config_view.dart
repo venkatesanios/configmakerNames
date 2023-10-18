@@ -47,12 +47,13 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
 
   Future<void> fetchData() async {
     Map<String, Object> body = {"userId": '1', "controllerId": '1'};
-    final response = await HttpService().postRequest("getUserName", body);
+    final response = await HttpService().postRequest("getgroups", body);
     print(jsonDecode(response.body));
     if (response.statusCode == 200) {
       setState(() {
         final jsondata1 = jsonDecode(response.body);
         jsondata = jsondata1['data'];
+        print('--jsondata--------$jsondata');
       });
     } else {
       //_showSnackBar(response.body);

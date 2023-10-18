@@ -1,4 +1,4 @@
-#Tue Oct 10 09:38:02 IST 2023
-base.0=/Users/user/Desktop/flutter/configmakerNames/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
+#Wed Oct 18 18:04:41 IST 2023
+base.0=/Users/user/Desktop/groupsss/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
 path.0=classes.dex
 renamed.0=classes.dex
