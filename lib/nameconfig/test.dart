@@ -6,11 +6,12 @@ class MyAppTest extends StatefulWidget {
 }
 
 class _MyAppTestState extends State<MyAppTest> {
-  List<List<String>> selectedValuesList = List.generate(5, (index) => []);
+  late List<List<String>> selectedValuesList;
   List<String> orderedSelectedValues = [];
   List<String> groupValues = [];
   int selectedgroupIndex = -1;
   String selectgroup = '';
+
   int oldgroupIndex = -1;
   int oldindex = -1;
   Map<String, List<Map<String, dynamic>>> jsondata = {
@@ -48,35 +49,50 @@ class _MyAppTestState extends State<MyAppTest> {
       {
         "srno": 1,
         "id": 1,
-        "name": "Line1",
+        "name": "Line 1",
         "value": ["0", "2", "3", "4"]
       },
       {
         "srno": 2,
         "id": 2,
-        "name": "Line2",
+        "name": "Line 2",
         "value": ["1", "2", "3", "4"]
       },
       {
         "srno": 3,
         "id": 3,
-        "name": "Line3",
+        "name": "Line 3",
         "value": ["2", "5", "3", "4"]
       },
       {
         "srno": 4,
         "id": 4,
-        "name": "Line4",
+        "name": "Line 4",
         "value": ["3", "2", "5", "4"]
       },
       {
         "srno": 5,
         "id": 5,
-        "name": "Line5",
+        "name": "Line 5",
         "value": ["4", "2", "3", "5"]
       }
     ]
   };
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    selectedgroupIndex = jsondata['group']!.isNotEmpty ? 0 : -1;
+    // selectedValuesList = selectedgroupIndex != -1
+    //     ? List.generate(jsondata['line']!.length,
+    //         (index) => jsondata['group']![selectedgroupIndex]['value'])
+    //     : List.generate(jsondata['line']!.length, (index) => []);
+    selectedValuesList = List.generate(jsondata['line']!.length, (index) => []);
+    selectedValuesList[selectedgroupIndex] =
+        jsondata['group']![selectedgroupIndex]['value'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -267,6 +283,7 @@ class _MyAppTestState extends State<MyAppTest> {
                                           }
                                           oldindex = index;
                                         }
+                                        print(selectedValuesList);
                                       });
                                     },
                                     child: Container(
