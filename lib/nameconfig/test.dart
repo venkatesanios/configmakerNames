@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class MyAppTest extends StatefulWidget {
+class MyAppTest2 extends StatefulWidget {
   @override
   _MyAppTestState createState() => _MyAppTestState();
 }
 
-class _MyAppTestState extends State<MyAppTest> {
+class _MyAppTestState extends State<MyAppTest2> {
   late List<List<String>> selectedValuesList;
   List<String> orderedSelectedValues = [];
   List<String> groupValues = [];

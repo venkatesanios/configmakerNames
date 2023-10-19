@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nameconfig/nameconfig/myapp.dart';
+import 'package:nameconfig/nameconfig/groupscreen.dart';
 import 'package:nameconfig/nameconfig/test.dart';
 import 'package:nameconfig/service/call.dart';
 import 'package:nameconfig/nameconfig/name_config_view.dart';
 
 void main() {
-  runApp(MyAppTest());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -20,10 +21,9 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
         ),
         debugShowCheckedModeBanner: false,
-        home: const NameConfigWidget(),
+        home: MyAppTest(),
       ),
     );
   }
