@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:nameconfig/nameconfig/group_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:nameconfig/nameconfig/groupdetailsscreen.dart';
 
 class MyAppTest extends StatefulWidget {
   @override
   _MyAppTestState createState() => _MyAppTestState();
 }
 
-class _MyAppTestState extends State<MyAppTest> {
+class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
   List<String> selectedValuesList = [];
   List<String> orderedSelectedValues = [];
   List<String> groupValues = [];
   int selectedgroupIndex = -1;
   String selectgroup = '';
   int selectline = -1;
+  String groupedvalvestr = '';
   List<List<dynamic>> myGroup = [
     ['group 1', false]
   ];
@@ -21,6 +25,10 @@ class _MyAppTestState extends State<MyAppTest> {
 
   int oldgroupIndex = -1;
   int oldindex = -1;
+  NameListProvider nameListProvider = NameListProvider();
+  // var viewModel = Provider.of<ProductViewModel>(context, listen: true);
+  bool _showDetails = false;
+
   Map<String, List<Map<String, dynamic>>> jsondata = {
     "group": [
       {
@@ -42,14 +50,14 @@ class _MyAppTestState extends State<MyAppTest> {
         "id": 3,
         "name": "Group3",
         "location": "Line 3",
-        "value": ["1", "2", "3", "4"]
+        "value": ["2", "5", "3", "4"]
       },
       {
         "srno": 4,
         "id": 4,
         "location": "Line 4",
         "name": "Group4",
-        "value": ["1", "2", "3", "4"]
+        "value": ["3", "2", "5", "4"]
       },
       {"srno": 5, "id": 5, "location": "Line 4", "name": "Group5", "value": []},
       {"srno": 6, "id": 6, "location": "Line 4", "name": "Group6", "value": []}
@@ -117,14 +125,20 @@ class _MyAppTestState extends State<MyAppTest> {
     setState(() {
       if (selectedgroupIndex != -1) {
         selectedValuesList = [];
+        nameListProvider.removeAll();
         selectline = int.parse(
             jsondata['group']![selectedgroupIndex]['location'].split(' ')[1]);
         print(jsondata['group']![selectedgroupIndex]['value']);
         print(selectedgroupIndex);
+        groupedvalvestr = '${jsondata['group']![selectedgroupIndex]['name']}:';
+        nameListProvider
+            .addName('${jsondata['group']![selectedgroupIndex]['name']}:');
 
         for (var i in jsondata['group']![selectedgroupIndex]['value']) {
           // selectedValuesList.add(i.split('.')[1]);
           selectedValuesList.add(i);
+          groupedvalvestr += '$i,';
+          nameListProvider.addName('$i,');
         }
       }
     });
@@ -191,22 +205,45 @@ class _MyAppTestState extends State<MyAppTest> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 50,
-                width: double.infinity,
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  '$selectgroup ${selectedValuesList.join(",")}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
+                  // height: 50,
+                  width: double.infinity,
+                  padding: EdgeInsets.all(16),
+                  child: Chip(
+                    label: Text(
+                      '${nameListProvider.names.join('')}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  )),
               Container(
                   height: 60,
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.all(16),
                   child: ListTile(
-                    title: Text('Groups'),
-                    trailing: Icon(Icons.info),
-                  )),
+                      title: Text('List of Groups'),
+                      trailing: IconButton(
+                        icon: Icon(Icons.info),
+                        onPressed: () {
+                          Center(
+                            child: _showDetails
+                                ? DetailsSection(
+                                    data: jsondata,
+                                    onClose: () {
+                                      setState(() {
+                                        _showDetails = false;
+                                      });
+                                    },
+                                  )
+                                : ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _showDetails = true;
+                                      });
+                                    },
+                                    child: Text('Go to Details'),
+                                  ),
+                          );
+                        },
+                      ))),
               Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Row(
@@ -233,7 +270,10 @@ class _MyAppTestState extends State<MyAppTest> {
                                     print(grouplist);
                                     print(selectedgroupIndex);
                                     print(groupIndex);
-
+                                    groupedvalvestr = '';
+                                    groupedvalvestr = '$gname:';
+                                    nameListProvider.removeAll();
+                                    nameListProvider.addName('$gname:');
                                     selectedgroupIndex = groupIndex;
                                     selectvalvelistvalue();
 
@@ -387,6 +427,20 @@ class _MyAppTestState extends State<MyAppTest> {
                                           selectline = index + 1;
 
                                           print(selectedValuesList);
+
+                                          String valvename = '';
+                                          for (var vname
+                                              in orderedSelectedValues) {
+                                            valvename += '$vname,';
+                                          }
+                                          groupedvalvestr += valvename;
+                                          nameListProvider.names
+                                                  .contains('$vname,')
+                                              ? nameListProvider
+                                                  .removeName('$vname,')
+                                              : nameListProvider
+                                                  .addName('$vname,');
+                                          // nameListProvider.addName(valvename);
                                         });
                                       },
                                       child: Container(
@@ -441,6 +495,7 @@ class _MyAppTestState extends State<MyAppTest> {
             ),
           ],
         ),
+
         // ),
       );
     });
