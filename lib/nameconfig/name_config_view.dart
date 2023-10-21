@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:nameconfig/nameconfig/name_config_model.dart';
+import 'package:nameconfig/nameconfig/name_model.dart';
 import 'package:nameconfig/service/http_services.dart';
 
 class NameConfigWidget extends StatefulWidget {
@@ -38,6 +38,7 @@ class Nameconfig extends StatefulWidget {
 
 class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
   dynamic jsondata;
+  List<NamesModelnew> _namesList = <NamesModelnew>[];
 
   @override
   void initState() {
@@ -45,34 +46,24 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
     fetchData();
   }
 
-  // Future<void> fetchData1() async {
-  //   Map<String, Object> body = {"userId": '1', "controllerId": '1'};
-  //   final response = await HttpService()
-  //       .postRequest("getUserName", body); // await the HTTP request
-  //   setState(() {
-  //     jsondata = json.decode(response)['data'];
-  //   });
-  // }
-
   Future<void> fetchData() async {
-    Map<String, Object> body = {"userId": '1', "controllerId": '1'};
-    final response = await HttpService().postRequest("getUserName", body);
-    print(jsonDecode(response.body));
+    final response = await HttpService()
+        .postRequest("getUserName", {"userId": '8', "controllerId": '1'});
     if (response.statusCode == 200) {
-      setState(() {
-        final jsondata1 = jsonDecode(response.body);
-        jsondata = jsondata1['data'];
-        print('-------------------$jsondata');
-      });
+      final data = jsonDecode(response.body);
+      _namesList = List.from(data["data"])
+          .map((item) => NamesModelnew.fromJson(item))
+          .toList();
+      setState(() {});
     } else {
-      //_showSnackBar(response.body);
+      // _showSnackBar(response.body);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: jsondata.length,
+      length: _namesList != null ? _namesList.length : 0,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Scaffold(
@@ -84,9 +75,10 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
               isScrollable: true,
               // controller: _tabController,
               tabs: [
-                for (var i = 0; i < jsondata.length; i++)
+                for (var i = 0; i < _namesList.length; i++)
                   Tab(
-                    text: jsondata[i]['nameDescription'].toString(),
+                    // text: _namesList[i]['nameDescription'].toString(),
+                    text: _namesList[i].nameDescription,
                   ),
               ],
               onTap: (value) {
@@ -98,25 +90,24 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
             child: TabBarView(
               // controller: _tabController,
               children: [
-                for (int i = 0; i < jsondata.length; i++)
-                  jsondata[i]['userName'].length == 0
+                for (int i = 0; i < _namesList.length; i++)
+                  _namesList[i].userName!.isEmpty
                       ? Container()
-                      : buildTab(jsondata[i]['userName'], i),
+                      : buildTab(_namesList[i].userName!, i),
               ],
             ),
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
-              //  final senddata = reqJson['data'];
-              // final datatest = jsonEncode(senddata);
+              List<Map<String, dynamic>> nameListJson =
+                  _namesList.map((name) => name.toJson()).toList();
 
-              Map<String, Object> body = {
-                "userId": '1',
+              Map<String, dynamic> body = {
+                "userId": '8',
                 "controllerId": "1",
-                "userNameList": jsondata,
+                "userNameList": nameListJson,
                 "createUser": "1"
               };
-              print(body);
               final response =
                   await HttpService().postRequest("createUserName", body);
               final jsonData = json.decode(response.body);
@@ -178,7 +169,7 @@ class _NameconfigState extends State<Nameconfig> with TickerProviderStateMixin {
         ),
         Flexible(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 70),
+            padding: const EdgeInsets.only(bottom: 70, left: 10, right: 10),
             child: ListView.builder(
               itemCount: itemcount,
               itemBuilder: (context, index) {
