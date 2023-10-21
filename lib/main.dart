@@ -14,7 +14,7 @@ void main() {
     providers: [
       ChangeNotifierProvider(create: (context) => NameListProvider()),
     ],
-    child: MyAppalert(),
+    child: MyApp(),
   ));
 }
 

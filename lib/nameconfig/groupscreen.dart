@@ -151,7 +151,19 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
     };
   }
 
-  selectlist() {}
+  void _showDetailsScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return DetailsSection(
+          data: jsondata['group']!,
+          onClose: () {
+            Navigator.of(context).pop();
+          },
+        );
+      },
+    );
+  }
 
   void _showAlertDialog(
     BuildContext context,
@@ -219,31 +231,43 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.all(16),
                   child: ListTile(
-                      title: Text('List of Groups'),
-                      trailing: IconButton(
-                        icon: Icon(Icons.info),
-                        onPressed: () {
-                          Center(
-                            child: _showDetails
-                                ? DetailsSection(
-                                    data: jsondata,
-                                    onClose: () {
-                                      setState(() {
-                                        _showDetails = false;
-                                      });
-                                    },
-                                  )
-                                : ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _showDetails = true;
-                                      });
-                                    },
-                                    child: Text('Go to Details'),
-                                  ),
-                          );
-                        },
-                      ))),
+                    title: Text('List of Groups'),
+
+                    trailing: IconButton(
+                      icon: Icon(Icons.info),
+                      onPressed: () {
+                        jsondata['group']!.isNotEmpty
+                            ? _showDetailsScreen(context)
+                            : _showAlertDialog(context, 'Warnning',
+                                'Currently no group available', false);
+                      },
+                    ),
+
+                    // IconButton(
+                    //   icon: Icon(Icons.info),
+                    //   onPressed: () {
+                    //     Center(
+                    //       child: _showDetails
+                    //           ? DetailsSection(
+                    //               data: jsondata['group']!,
+                    //               onClose: () {
+                    //                 setState(() {
+                    //                   _showDetails = false;
+                    //                 });
+                    //               },
+                    //             )
+                    //           : ElevatedButton(
+                    //               onPressed: () {
+                    //                 setState(() {
+                    //                   _showDetails = true;
+                    //                 });
+                    //               },
+                    //               child: Text('Go to Details'),
+                    //             ),
+                    //     );
+                    //   },
+                    // )
+                  )),
               Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Row(
