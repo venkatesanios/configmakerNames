@@ -11,10 +11,7 @@ class NameListProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void addNamefirst(String name) {
-    _names[0] = name;
-    notifyListeners();
-  }
+ 
 
   void removeName(String name) {
     _names.remove(name);
@@ -22,10 +19,10 @@ class NameListProvider with ChangeNotifier {
   }
 
   void removeAll() {
-    _names.clear;
-    _names = [];
+     _names = [];
     notifyListeners();
   }
+   
 
   void updateName(String oldName, String newName) {
     final index = _names.indexOf(oldName);

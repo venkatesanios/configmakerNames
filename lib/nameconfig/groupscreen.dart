@@ -1,6 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:nameconfig/nameconfig/group_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:nameconfig/service/http_services.dart';
 import 'package:nameconfig/nameconfig/groupdetailsscreen.dart';
 
 class MyAppTest extends StatefulWidget {
@@ -24,85 +27,33 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
   List<String> emptygrouplist = [];
 
   int oldgroupIndex = -1;
-  int oldindex = -1;
+  int oldlineindex = -1;
   NameListProvider nameListProvider = NameListProvider();
-  // var viewModel = Provider.of<ProductViewModel>(context, listen: true);
-  bool _showDetails = false;
+   bool _showDetails = false;
 
-  Map<String, List<Map<String, dynamic>>> jsondata = {
-    "group": [
-      {
-        "srno": 1,
-        "id": 1,
-        "name": "Group1",
-        "location": "Line 1",
-        "value": ["1", "2", "4"]
-      },
-      {
-        "srno": 2,
-        "id": 2,
-        "name": "Group2",
-        "location": "Line 2",
-        "value": ["1", "2", "4"]
-      },
-      {
-        "srno": 3,
-        "id": 3,
-        "name": "Group3",
-        "location": "Line 3",
-        "value": ["2", "5", "3", "4"]
-      },
-      {
-        "srno": 4,
-        "id": 4,
-        "location": "Line 4",
-        "name": "Group4",
-        "value": ["3", "2", "5", "4"]
-      },
-      {"srno": 5, "id": 5, "location": "Line 4", "name": "Group5", "value": []},
-      {"srno": 6, "id": 6, "location": "Line 4", "name": "Group6", "value": []}
-    ],
-    "line": [
-      {
-        "srno": 1,
-        "id": 1,
-        "name": "Line 1",
-        "value": ["1", "2", "3", "4"]
-      },
-      {
-        "srno": 2,
-        "id": 2,
-        "name": "Line 2",
-        "value": ["1", "2", "3", "4"]
-      },
-      {
-        "srno": 3,
-        "id": 3,
-        "name": "Line 3",
-        "value": ["2", "5", "3", "4"]
-      },
-      {
-        "srno": 4,
-        "id": 4,
-        "name": "Line 4",
-        "value": ["3", "2", "5", "4"]
-      },
-      {
-        "srno": 5,
-        "id": 5,
-        "name": "Line 5",
-        "value": ["4", "2", "3", "5"]
-      }
-    ]
-  };
+var jsondata ;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
+fetchData();
+     Timer(Duration(milliseconds: 500), () {
     valueAssign();
     selectvalvelistvalue();
+     });
+  }
+    Future<void> fetchData() async {
+    Map<String, Object> body = {"userId": '8', "controllerId": '1'};
+    final response = await HttpService().postRequest("getUserPlanningGroup", body);
+     if (response.statusCode == 200) {
+      setState(() {
+        final jsondata1 = jsonDecode(response.body);
+        jsondata = jsondata1['data'];
+       });
+    } else {
+      //_showSnackBar(response.body);
+    }
   }
 
   void valueAssign() {
@@ -111,14 +62,13 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
       emptygrouplist.clear();
       grouplist.clear();
       for (var i = 0; i < jsondata['group']!.length; i++) {
-        if (jsondata['group']![i]['value'].length > 0) {
+        if (jsondata['group']![i]['valve'].length > 0) {
           grouplist.add('${jsondata['group']![i]['name']}');
         } else {
           emptygrouplist.add('${jsondata['group']![i]['name']}');
         }
       }
-      print(emptygrouplist);
-    });
+     });
   }
 
   void selectvalvelistvalue() {
@@ -126,18 +76,13 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
       if (selectedgroupIndex != -1) {
         selectedValuesList = [];
         nameListProvider.removeAll();
-        selectline = int.parse(
-            jsondata['group']![selectedgroupIndex]['location'].split(' ')[1]);
-        print(jsondata['group']![selectedgroupIndex]['value']);
-        print(selectedgroupIndex);
-        groupedvalvestr = '${jsondata['group']![selectedgroupIndex]['name']}:';
-        nameListProvider
-            .addName('${jsondata['group']![selectedgroupIndex]['name']}:');
-
-        for (var i in jsondata['group']![selectedgroupIndex]['value']) {
-          // selectedValuesList.add(i.split('.')[1]);
-          selectedValuesList.add(i);
-          groupedvalvestr += '$i,';
+         jsondata['group']![selectedgroupIndex]['location'] == '' ? selectline = -1  : selectline = int.parse(
+            jsondata['group']![selectedgroupIndex]['location'].split(' ')[1]); ;
+      
+        for (var i in jsondata['group']![selectedgroupIndex]['valve']) {
+          groupedvalvestr = '${jsondata['group']![selectedgroupIndex]['name']}:';
+           selectedValuesList.add(i);
+           groupedvalvestr = jsondata['group']![selectedgroupIndex]['name'];
           nameListProvider.addName('$i,');
         }
       }
@@ -147,12 +92,12 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
   Map<String, dynamic> colorchange() {
     return {
       'line': jsondata['group']![selectedgroupIndex]['location'].split(' ')[1],
-      'valve': jsondata['group']![selectedgroupIndex]['value']
+      'valve': jsondata['group']![selectedgroupIndex]['valve']
     };
   }
 
   void _showDetailsScreen(BuildContext context) {
-    showModalBottomSheet(
+     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return DetailsSection(
@@ -179,14 +124,14 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
           content: Text(msg),
           actions: [
             TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             btncount
                 ? TextButton(
-                    child: Text("cancel"),
+                    child: const Text("cancel"),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -204,69 +149,54 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
       return Scaffold(
         // backgroundColor: Colors.white70,
         appBar: AppBar(
-            title: Text(
+            title: const Text(
           'Groups',
           textAlign: TextAlign.center,
         )),
         body: Padding(
-          padding: MediaQuery.of(context).size.width > 800
-              ? EdgeInsets.only(
+          padding: MediaQuery.of(context).size.width > 600
+              ? const EdgeInsets.only(
                   left: 80.0, right: 80.0, top: 10.0, bottom: 20.0)
-              : EdgeInsets.all(8.0),
+              : const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                   // height: 50,
                   width: double.infinity,
-                  padding: EdgeInsets.all(16),
-                  child: Chip(
-                    label: Text(
-                      '${nameListProvider.names.join('')}',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  )),
+                  padding: const EdgeInsets.all(16),
+                  child: nameListProvider.names.isNotEmpty ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                        Text(
+                          '$groupedvalvestr :',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      Chip(
+                        label: Text(
+                          '${nameListProvider.names.join('')}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ) : null),
               Container(
                   height: 60,
                   width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: ListTile(
-                    title: Text('List of Groups'),
-
+                    title: const Text('List of Groups'),
                     trailing: IconButton(
-                      icon: Icon(Icons.info),
+                      icon: const Icon(Icons.info),
                       onPressed: () {
-                        jsondata['group']!.isNotEmpty
+                         jsondata['group']!.isNotEmpty
                             ? _showDetailsScreen(context)
                             : _showAlertDialog(context, 'Warnning',
                                 'Currently no group available', false);
                       },
                     ),
 
-                    // IconButton(
-                    //   icon: Icon(Icons.info),
-                    //   onPressed: () {
-                    //     Center(
-                    //       child: _showDetails
-                    //           ? DetailsSection(
-                    //               data: jsondata['group']!,
-                    //               onClose: () {
-                    //                 setState(() {
-                    //                   _showDetails = false;
-                    //                 });
-                    //               },
-                    //             )
-                    //           : ElevatedButton(
-                    //               onPressed: () {
-                    //                 setState(() {
-                    //                   _showDetails = true;
-                    //                 });
-                    //               },
-                    //               child: Text('Go to Details'),
-                    //             ),
-                    //     );
-                    //   },
-                    // )
+         
                   )),
               Padding(
                 padding: const EdgeInsets.all(5.0),
@@ -275,57 +205,33 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                     Expanded(
                       child: Container(
                         color: Colors.white,
-                        height: 80, // Set the height of the inner list
+                        height: 80,  
                         child: Scrollbar(
-                          // thumbVisibility: true,
+                          
+                         
                           trackVisibility: true,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             controller: ScrollController(),
-                            itemCount: grouplist.length,
+                            itemCount: grouplist.length ,
                             itemBuilder: (context, groupIndex) {
                               String gname = jsondata['group']![groupIndex]
                                       ['name']
                                   .toString();
-
-                              return GestureDetector(
+                                 //ClicK Group
+                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    print(grouplist);
-                                    print(selectedgroupIndex);
-                                    print(groupIndex);
-                                    groupedvalvestr = '';
-                                    groupedvalvestr = '$gname:';
+                                     groupedvalvestr = '';
+                                    groupedvalvestr = '$gname';
                                     nameListProvider.removeAll();
-                                    nameListProvider.addName('$gname:');
-                                    selectedgroupIndex = groupIndex;
-                                    selectvalvelistvalue();
-
-                                    // if (oldgroupIndex != -1 &&
-                                    //     oldgroupIndex != groupIndex) {
-                                    //   orderedSelectedValues.clear();
-                                    //   for (int i = 0;
-                                    //       i < selectedValuesList.length;
-                                    //       i++) {
-                                    //     if (i != groupIndex) {
-                                    //       selectedValuesList.clear();
-                                    //     }
-                                    //   }
-                                    // }
-                                    // if (selectedgroupIndex == groupIndex) {
-                                    //   selectedgroupIndex = -1;
-                                    //   orderedSelectedValues.clear();
-                                    // } else {
-                                    //   selectedgroupIndex = groupIndex;
-                                    //   orderedSelectedValues.clear();
-                                    //   selectgroup = 'Group ${groupIndex + 1}:';
-                                    // }
-                                    // oldgroupIndex = groupIndex;
+                                     selectedgroupIndex = groupIndex;
+                                     selectvalvelistvalue();
+                                  
                                   });
                                 },
                                 child: Container(
-                                  // width: 0,
-                                  margin: EdgeInsets.all(4),
+                                   margin: const EdgeInsets.all(4),
                                   child: Center(
                                       child: Chip(
                                     label: Text(gname),
@@ -334,13 +240,7 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                                             ? Colors.amber
                                             : Colors.blueGrey,
                                   )
-                                      // CircleAvatar(
-                                      //   backgroundColor:
-                                      //       selectedgroupIndex == groupIndex
-                                      //           ? Colors.amber
-                                      //           : Colors.blueGrey,
-                                      //   child: Text('$gname '),
-                                      // ),
+                                     
                                       ),
                                 ),
                               );
@@ -350,45 +250,45 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                       ),
                     ),
                     // Container(width: 50,height: 100,child: ,),
+
                     Container(
                       height: 40,
                       width: 40,
-                      padding: EdgeInsets.all(2),
+                      padding: const EdgeInsets.all(2),
                       child: FloatingActionButton(
                         elevation: 4,
                         onPressed: () {
                           setState(() {
-                            print('emptygrouplist-----------$emptygrouplist');
-                            if (emptygrouplist.isNotEmpty) {
+                            //Add group list
+                             if (emptygrouplist.isNotEmpty) {
                               grouplist.add(emptygrouplist[0].toString());
                               emptygrouplist.removeAt(0);
-                              print('grouplist.........$grouplist');
-                              print('emptygrouplist-----------$emptygrouplist');
-                            } else {
-                              print('show alert');
-                              _showAlertDialog(context, 'Warning',
+                              groupedvalvestr = grouplist[0].toString();
+                              nameListProvider.removeAll();
+                             } else {
+                               _showAlertDialog(context, 'Warning',
                                   'Group Limit is Reached', false);
                             }
-                            // valueAssign();
-                          });
+                           });
 
                           print('click add button');
                         },
-                        child: Icon(Icons.add),
+                        child: const Icon(Icons.add),
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 5,
               ),
               Expanded(
+                
                 child: ListView.builder(
                   controller: ScrollController(),
                   itemCount: jsondata['line']?.length, // Outer list item count
                   itemBuilder: (context, index) {
-                    return Card(
+                     return Card(
                       elevation: 4,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
@@ -402,7 +302,7 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                               width: double.infinity,
                               child: Text(
                                 jsondata['line']![index]['name'].toString(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 12.0,
                                   fontWeight: FontWeight.bold,
@@ -410,7 +310,7 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                                 textAlign: TextAlign.start,
                               ),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Container(
                               height: 70, // Set the height of the inner list
                               child: Scrollbar(
@@ -418,27 +318,28 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                                 child: ListView.builder(
                                   controller: ScrollController(),
                                   scrollDirection: Axis.horizontal,
-                                  itemCount: (jsondata['line']![index]['value']
+                                  itemCount: (jsondata['line']![index]['valve']
                                           ?.length) ??
                                       0,
                                   itemBuilder: (context, innerIndex) {
                                     String vname = jsondata['line']![index]
-                                            ['value'][innerIndex]
+                                            ['valve'][innerIndex]
                                         .toString();
 
                                     return GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          print(
-                                              'selectline----$selectline-----index---${index + 1}');
-
-                                          if (selectline != (index + 1)) {
+                                          
+                                              if (groupedvalvestr != '') {
+                                               
+                                           if (selectline != (index + 1) ) {
                                             orderedSelectedValues.clear();
                                             selectedValuesList.clear();
                                             selectline = index + 1;
+                                            oldlineindex = index + 1;
+                                            nameListProvider.removeAll();
                                           }
-                                          print(
-                                              'selectline----$selectline-----index---${index + 1}');
+                                           
                                           if (selectedValuesList
                                               .contains('$vname')) {
                                             selectedValuesList.remove('$vname');
@@ -449,27 +350,30 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                                             orderedSelectedValues.add('$vname');
                                           }
                                           selectline = index + 1;
-
-                                          print(selectedValuesList);
-
+                                           oldlineindex = index + 1;
                                           String valvename = '';
                                           for (var vname
                                               in orderedSelectedValues) {
                                             valvename += '$vname,';
                                           }
-                                          groupedvalvestr += valvename;
+                                          
                                           nameListProvider.names
                                                   .contains('$vname,')
                                               ? nameListProvider
                                                   .removeName('$vname,')
                                               : nameListProvider
                                                   .addName('$vname,');
+                                              }
+                                              else
+                                              {
+                                                _showAlertDialog(context, 'Warnning', 'Add group First then select valves in group', false);
+                                              }
                                           // nameListProvider.addName(valvename);
                                         });
                                       },
                                       child: Container(
                                         width: 70,
-                                        margin: EdgeInsets.all(4),
+                                        margin: const EdgeInsets.all(4),
                                         child: Center(
                                           child: CircleAvatar(
                                             backgroundColor:
@@ -499,27 +403,51 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
         ),
         floatingActionButton: Row(
           children: [
-            Spacer(),
+            const Spacer(),
             FloatingActionButton(
-              onPressed: () {},
-              child: Icon(Icons.delete),
+              onPressed: () async{
+                 jsondata['group']?[selectedgroupIndex]['valve'] = [];
+                jsondata['group']?[selectedgroupIndex]['location'] = '';
+                 Map<String, Object> body = {
+                "userId": '8',
+                "controllerId": "1",
+                "group": jsondata['group'],
+                "createUser": "1"
+              };
+               final response =
+                  await HttpService().postRequest("createUserPlanningGroup", body);
+              final jsonDataresponse = json.decode(response.body);
+              },
+              child: const Icon(Icons.delete),
             ),
-            SizedBox(
+            const SizedBox(
               width: 5,
             ),
             FloatingActionButton(
-              onPressed: () {
-                jsondata['group']?[selectedgroupIndex]['value'] =
-                    selectedValuesList;
+              onPressed: () async{
+
+                final List<int> selectedValuesListint = selectedValuesList.map((e)=>int.parse(e)).toList();
+
+
+                 jsondata['group']?[selectedgroupIndex]['valve'] =
+                    selectedValuesListint;
                 jsondata['group']?[selectedgroupIndex]['location'] =
                     'Line $selectline';
-                print(jsondata);
-              },
-              child: Icon(Icons.send),
+                     
+              Map<String, Object> body = {
+                "userId": '8',
+                "controllerId": "1",
+                "group": jsondata['group'],
+                "createUser": "1"
+              };
+               final response =
+                  await HttpService().postRequest("createUserPlanningGroup", body);
+              final jsonDataresponse = json.decode(response.body);
+               },
+              child: const Icon(Icons.send),
             ),
           ],
         ),
-
         // ),
       );
     });

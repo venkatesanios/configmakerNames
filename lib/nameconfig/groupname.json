@@ -8,28 +8,28 @@
             "id": 1,
             "name": "Group1",
             "location":"Line 1",
-             "value": ["1.1","1.2","1.3","1.4"]
+             "value": ["1","2","3","4"]
             },  
             { 
             "srno": 2,
             "id": 2,
             "name": "Group2",
             "location":"Line 2",
-            "value": ["2.1","2.2","2.4"]
+            "value": ["1","2","4"]
             },
             { 
             "srno": 3,
             "id": 3,
             "name": "Group3",
             "location":"Line 3",
-            "value": ["3.1","3.2","3.3","3.4"]
+            "value": ["1","2","3","4"]
             },
             { 
             "srno": 4,
             "id": 4,
             "location":"Line 4",
             "name": "Group4",
-            "value": ["4.1","4.2","4.3","4.4"]
+            "value": ["1","2","3","4"]
             }
     ],
         "line" : [

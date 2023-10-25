@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DetailsSection extends StatelessWidget {
-  final List<Map<String, dynamic>> data;
+  final List<dynamic> data;
   final VoidCallback onClose;
 
   DetailsSection({required this.data, required this.onClose});
@@ -14,7 +14,7 @@ class DetailsSection extends StatelessWidget {
           onTap: onClose,
           child: Container(
             color: Colors.transparent,
-            constraints: BoxConstraints.expand(),
+            constraints: const BoxConstraints.expand(),
           ),
         ),
         Center(
@@ -27,14 +27,14 @@ class DetailsSection extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Spacer(),
-                    Text(
+                    const Spacer(),
+                    const Text(
                       'Group Details',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.close,
                         color: Colors.red,
                       ),
@@ -46,6 +46,12 @@ class DetailsSection extends StatelessWidget {
                   child: SingleChildScrollView(
                     child: DataTable(
                       columns: const <DataColumn>[
+                           DataColumn(
+                          label: Text(
+                            'Srno',
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ),
                         DataColumn(
                           label: Text(
                             'Group',
@@ -67,9 +73,10 @@ class DetailsSection extends StatelessWidget {
                       ],
                       rows: List.generate(data.length, (index) {
                         return DataRow(cells: [
+                          DataCell(Text(data[index]['sNo'].toString())),
                           DataCell(Text(data[index]['name'].toString())),
                           DataCell(Text(data[index]['location'].toString())),
-                          DataCell(Text(data[index]['value'].toString())),
+                          DataCell(Text(data[index]['valve'].toString())),
                         ]);
                       }),
                     ),
