@@ -79,12 +79,16 @@ fetchData();
          jsondata['group']![selectedgroupIndex]['location'] == '' ? selectline = -1  : selectline = int.parse(
             jsondata['group']![selectedgroupIndex]['location'].split(' ')[1]); ;
       
-        for (var i in jsondata['group']![selectedgroupIndex]['valve']) {
-          groupedvalvestr = '${jsondata['group']![selectedgroupIndex]['name']}:';
-           selectedValuesList.add(i);
+        // for (var i in jsondata['group']![selectedgroupIndex]['valve']) {
+          for (var i = 0; i < jsondata['group']![selectedgroupIndex]['valve'].length; i++) {
+             groupedvalvestr = '${jsondata['group']![selectedgroupIndex]['name']}:';
+           selectedValuesList.add(jsondata['group']![selectedgroupIndex]['valve'][i].toString());
            groupedvalvestr = jsondata['group']![selectedgroupIndex]['name'];
-          nameListProvider.addName('$i,');
-        }
+          nameListProvider.addName('${i+1},');
+            
+          }
+         
+         
       }
     });
   }
@@ -358,11 +362,11 @@ fetchData();
                                           }
                                           
                                           nameListProvider.names
-                                                  .contains('$vname,')
+                                                  .contains('${innerIndex + 1},')
                                               ? nameListProvider
-                                                  .removeName('$vname,')
+                                                  .removeName('${innerIndex + 1},')
                                               : nameListProvider
-                                                  .addName('$vname,');
+                                                  .addName('${innerIndex + 1},');
                                               }
                                               else
                                               {
@@ -382,7 +386,7 @@ fetchData();
                                                             .contains(vname)
                                                     ? Colors.amber
                                                     : Colors.blueGrey,
-                                            child: Text('$vname'),
+                                            child: Text('${innerIndex + 1}'),
                                           ),
                                         ),
                                       ),
@@ -426,7 +430,9 @@ fetchData();
             FloatingActionButton(
               onPressed: () async{
 
-                final List<int> selectedValuesListint = selectedValuesList.map((e)=>int.parse(e)).toList();
+                    final List<int> selectedValuesListint = selectedValuesList.map((e)=>int.parse(e)).toList();
+                      print(selectedValuesListint);
+                      print(jsondata['group']);
 
 
                  jsondata['group']?[selectedgroupIndex]['valve'] =
