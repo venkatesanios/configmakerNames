@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:nameconfig/constant/constantwebui.dart';
 import 'package:nameconfig/service/http_services.dart';
 
 class ConstantScreenWidget extends StatefulWidget {
@@ -16,12 +17,12 @@ class _ConstantScreenWidgetState extends State<ConstantScreenWidget>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth <= 800) {
+        if (constraints.maxWidth <= 600) {
           // Render mobile content
           return const ConstantUI();
         } else {
           // Render web content
-          return const ConstantUI();
+          return  ConstantwebUI();
         }
       },
     );
