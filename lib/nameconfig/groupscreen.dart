@@ -19,9 +19,7 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
   String selectgroup = '';
   int selectline = -1;
   String groupedvalvestr = '';
-  List<List<dynamic>> myGroup = [
-    ['group 1', false]
-  ];
+ 
 
   List<String> grouplist = [];
   List<String> emptygrouplist = [];

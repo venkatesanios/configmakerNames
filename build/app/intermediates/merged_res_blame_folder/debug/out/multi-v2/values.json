@@ -4,7 +4,7 @@
             "outputFile": "com.example.nameconfig.app-mergeDebugResources-11:/values/values.xml",
             "map": [
                 {
-                    "source": "/Users/user/Desktop/groupsss/android/app/src/main/res/values/styles.xml",
+                    "source": "/Users/user/Desktop/flutter/groupsss/android/app/src/main/res/values/styles.xml",
                     "from": {
                         "startLines": "3,14",
                         "startColumns": "4,4",

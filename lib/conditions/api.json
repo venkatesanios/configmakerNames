@@ -1,0 +1,85 @@
+{
+    "code": 200,
+    "message": "User planning listed successfully",
+    "data": {
+        "dropdown": [
+            "Contact is opened",
+            "Contact is closed",
+            "Contact is opening",
+            "Contact is closing"
+        ],
+        "program": [],
+        "analogSensor": [],
+        "waterMeter": [],
+        "contact": [
+            {
+                "sNo": 1,
+                "id": "CONT1",
+                "location": "",
+                "name": "Contact 1"
+            },
+            {
+                "sNo": 2,
+                "id": "CONT2",
+                "location": "",
+                "name": "Contact 2"
+            },
+            {
+                "sNo": 3,
+                "id": "CONT3",
+                "location": "",
+                "name": "Contact 3"
+            },
+            {
+                "sNo": 4,
+                "id": "CONT4",
+                "location": "",
+                "name": "Contact 4"
+            }
+        ],
+        "condition": [
+            {
+                "sNo": 1,
+                "id": "COND1",
+                "location": "",
+                "name": "Condition 1"
+            },
+            {
+                "sNo": "2",
+                "id": "COND2",
+                "location": "",
+                "name": "Condition 2"
+            }
+        ],
+        "conditionLibrary": [
+            {
+                "sNo": 1,
+                "id": "COND1",
+                "location": "",
+                "name": "Condition 1",
+                "enable": 0,
+                "state": "",
+                "duration": "00:00",
+                "conditionIsTrueWhen": "",
+                "fromTime": "00:00",
+                "untilTime": "00:00",
+                "notification": 0,
+                "usedByProgram": ""
+            },
+            {
+                "sNo": "2",
+                "id": "COND2",
+                "location": "",
+                "name": "Condition 2",
+                "enable": 0,
+                "state": "",
+                "duration": "00:00",
+                "conditionIsTrueWhen": "",
+                "fromTime": "00:00",
+                "untilTime": "00:00",
+                "notification": 0,
+                "usedByProgram": ""
+            }
+        ]
+    }
+}

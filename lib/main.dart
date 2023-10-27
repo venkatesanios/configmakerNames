@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:nameconfig/constant/constantscreen.dart';
+import 'package:nameconfig/conditions/conditionscreen.dart';
 import 'package:nameconfig/nameconfig/alert.dart';
 import 'package:nameconfig/nameconfig/group_provider.dart';
 import 'package:nameconfig/nameconfig/myapp.dart';
 import 'package:nameconfig/nameconfig/groupscreen.dart';
 import 'package:nameconfig/nameconfig/net.dart';
 import 'package:nameconfig/nameconfig/test.dart';
+import 'package:nameconfig/pick.dart';
 import 'package:nameconfig/service/call.dart';
 import 'package:nameconfig/nameconfig/name_config_view.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
         debugShowCheckedModeBanner: false,
-        home: ConstantScreenWidget(),
+        home: ConditionScreenWidget(),
       ),
     );
   }
