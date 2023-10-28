@@ -366,20 +366,15 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
   }
   updateconditions() async
 {    
-
-  //List<Map<String, dynamic>> nameListJson =  widget.names.map((name) => name.toJson()).toList();
-  var dydata =  _conditionModel!.data!.conditionLibrary;
-  // var _conditionModel2 = jsonEncode(_conditionModel.data!.conditionLibrary);
-  List<Map<String, dynamic>> _conditionModel = _conditionModel.data!.conditionLibrary.map((name) => name.toJson()).toList();
-    
+   List<Map<String, dynamic>> conditionJson =  _conditionModel.data!.conditionLibrary!.map((condition) => condition.toJson()).toList();
+     
   Map<String, Object> body = {
     "userId": '8',
     "controllerId": "1",
-    "condition": "$_conditionModel",
+    "condition": conditionJson,
     "createUser": "1"
   };
-  print(body);
-    final response =
+     final response =
       await HttpService().postRequest("createUserPlanningCondition", body);
   final jsonDataresponse = json.decode(response.body);
   print('jsonDataresponse:- $jsonDataresponse');
