@@ -34,11 +34,11 @@ class ConditionModel {
 
 class Data {
     List<String>? dropdown;
-    List<dynamic>? program;
-    List<dynamic>? analogSensor;
-    List<dynamic>? waterMeter;
-    List<Contact>? contact;
-    List<Condition>? condition;
+    List<UserNames>? program;
+    List<UserNames>? analogSensor;
+    List<UserNames>? waterMeter;
+    List<UserNames>? contact;
+    List<UserNames>? condition;
     List<ConditionLibrary>? conditionLibrary;
 
     Data({
@@ -53,11 +53,11 @@ class Data {
 
     factory Data.fromJson(Map<String, dynamic> json) => Data(
         dropdown: json["dropdown"] == null ? [] : List<String>.from(json["dropdown"]!.map((x) => x)),
-        program: json["program"] == null ? [] : List<dynamic>.from(json["program"]!.map((x) => x)),
-        analogSensor: json["analogSensor"] == null ? [] : List<dynamic>.from(json["analogSensor"]!.map((x) => x)),
-        waterMeter: json["waterMeter"] == null ? [] : List<dynamic>.from(json["waterMeter"]!.map((x) => x)),
-        contact: json["contact"] == null ? [] : List<Contact>.from(json["contact"]!.map((x) => Contact.fromJson(x))),
-        condition: json["condition"] == null ? [] : List<Condition>.from(json["condition"]!.map((x) => Condition.fromJson(x))),
+        program: json["program"] == null ? [] : List<UserNames>.from(json["program"]!.map((x) => UserNames.fromJson(x))),
+        analogSensor: json["analogSensor"] == null ? [] : List<UserNames>.from(json["analogSensor"]!.map((x) => UserNames.fromJson(x))),
+        waterMeter: json["waterMeter"] == null ? [] : List<UserNames>.from(json["waterMeter"]!.map((x)=> UserNames.fromJson(x))),
+        contact: json["contact"] == null ? [] : List<UserNames>.from(json["contact"]!.map((x) => UserNames.fromJson(x))),
+        condition: json["condition"] == null ? [] : List<UserNames>.from(json["condition"]!.map((x) => UserNames.fromJson(x))),
         conditionLibrary: json["conditionLibrary"] == null ? [] : List<ConditionLibrary>.from(json["conditionLibrary"]!.map((x) => ConditionLibrary.fromJson(x))),
     );
 
@@ -72,20 +72,20 @@ class Data {
     };
 }
 
-class Condition {
+class UserNames {
     dynamic sNo;
     String? id;
     String? location;
     String? name;
 
-    Condition({
+    UserNames({
         this.sNo,
         this.id,
         this.location,
         this.name,
     });
 
-    factory Condition.fromJson(Map<String, dynamic> json) => Condition(
+    factory UserNames.fromJson(Map<String, dynamic> json) => UserNames(
         sNo: json["sNo"],
         id: json["id"],
         location: json["location"],
@@ -157,33 +157,5 @@ class ConditionLibrary {
         "untilTime": untilTime,
         "notification": notification,
         "usedByProgram": usedByProgram,
-    };
-}
-
-class Contact {
-    int? sNo;
-    String? id;
-    String? location;
-    String? name;
-
-    Contact({
-        this.sNo,
-        this.id,
-        this.location,
-        this.name,
-    });
-
-    factory Contact.fromJson(Map<String, dynamic> json) => Contact(
-        sNo: json["sNo"],
-        id: json["id"],
-        location: json["location"],
-        name: json["name"],
-    );
-
-    Map<String, dynamic> toJson() => {
-        "sNo": sNo,
-        "id": id,
-        "location": location,
-        "name": name,
     };
 }

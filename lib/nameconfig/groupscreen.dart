@@ -427,12 +427,7 @@ fetchData();
             ),
             FloatingActionButton(
               onPressed: () async{
-
                     final List<int> selectedValuesListint = selectedValuesList.map((e)=>int.parse(e)).toList();
-                      print(selectedValuesListint);
-                      print(jsondata['group']);
-
-
                  jsondata['group']?[selectedgroupIndex]['valve'] =
                     selectedValuesListint;
                 jsondata['group']?[selectedgroupIndex]['location'] =

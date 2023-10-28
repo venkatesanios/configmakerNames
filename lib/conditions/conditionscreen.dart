@@ -131,22 +131,25 @@ List<String> usedprogramdropdownlist2 = ['Program Starting',
                 ),
  Expanded(
   child:
-  Container(margin: EdgeInsets.all(30),
-   child: SingleChildScrollView(
-     child: Column(children: [
-     ListTile(title: Text(Conditionhdrlist[0]),trailing: Text('Conditions ${tabclickindex+1}'),tileColor: Colors.lightBlue[400],),
-     ListTile(title: Text(Conditionhdrlist[1]),trailing: Text('data'),),
-     ListTile(title: Text(Conditionhdrlist[2]),trailing: Text('data'),),
-     ListTile(title: Text(Conditionhdrlist[3]),trailing: Text('data'),),
-     ListTile(title: Text(Conditionhdrlist[4]),trailing: Text('data'),),
-     ListTile(title: Text(Conditionhdrlist[5]),trailing: Text('data'),),
-     ListTile(title: Text(Conditionhdrlist[6]),trailing: Text('data'),),
-     ListTile(title: Text(Conditionhdrlist[7]),trailing: Text('data'),),
-     ListTile(title: Text(Conditionhdrlist[8]),trailing: Text('data'),),
-     ListTile(title: Text(Conditionhdrlist[9]),trailing: Text('data'),),
-     ]),
+  Padding(
+    padding: const EdgeInsets.only(bottom: 50),
+    child: Container(margin: EdgeInsets.all(30),
+     child: SingleChildScrollView(
+       child: Column(children: [
+       ListTile(title: Text(Conditionhdrlist[0]),trailing: Text('Conditions ${tabclickindex+1}'),tileColor: Colors.lightBlue[400],),
+       ListTile(title: Text(Conditionhdrlist[1]),trailing: Text('data'),),
+       ListTile(title: Text(Conditionhdrlist[2]),trailing: Text('data'),),
+       ListTile(title: Text(Conditionhdrlist[3]),trailing: Text('data'),),
+       ListTile(title: Text(Conditionhdrlist[4]),trailing: Text('data'),),
+       ListTile(title: Text(Conditionhdrlist[5]),trailing: Text('data'),),
+       ListTile(title: Text(Conditionhdrlist[6]),trailing: Text('data'),),
+       ListTile(title: Text(Conditionhdrlist[7]),trailing: Text('data'),),
+       ListTile(title: Text(Conditionhdrlist[8]),trailing: Text('data'),),
+       ListTile(title: Text(Conditionhdrlist[9]),trailing: Text('data'),),
+       ]),
+     ),
    ),
- ),
+  ),
  )
               ],
             ),
