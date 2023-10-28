@@ -3,81 +3,145 @@
     "message": "User planning listed successfully",
     "data": {
         "dropdown": [
-            "Contact is opened",
-            "Contact is closed",
-            "Contact is opening",
-            "Contact is closing"
+            "Sensor reading is higher than",
+            "Sensor reading is lower than"
         ],
         "program": [],
-        "analogSensor": [],
-        "waterMeter": [],
-        "contact": [
+        "analogSensor": [
             {
-                "sNo": 1,
-                "id": "CONT1",
+                "sNo": 51,
+                "id": "AS1",
                 "location": "",
-                "name": "Contact 1"
+                "name": "Analog Sensor 1"
             },
             {
-                "sNo": 2,
-                "id": "CONT2",
+                "sNo": 52,
+                "id": "AS2",
                 "location": "",
-                "name": "Contact 2"
+                "name": "Analog Sensor 2"
             },
             {
-                "sNo": 3,
-                "id": "CONT3",
+                "sNo": 53,
+                "id": "AS3",
                 "location": "",
-                "name": "Contact 3"
+                "name": "Analog Sensor 3"
             },
             {
-                "sNo": 4,
-                "id": "CONT4",
+                "sNo": 54,
+                "id": "AS4",
                 "location": "",
-                "name": "Contact 4"
+                "name": "Analog Sensor 4"
+            },
+            {
+                "sNo": 55,
+                "id": "AS5",
+                "location": "",
+                "name": "Analog Sensor 5"
             }
         ],
+        "waterMeter": [],
+        "contact": [],
         "condition": [
             {
-                "sNo": 1,
-                "id": "COND1",
+                "sNo": 56,
+                "id": "CONT1",
                 "location": "",
-                "name": "Condition 1"
+                "name": "Contacts 1"
             },
             {
-                "sNo": "2",
-                "id": "COND2",
+                "sNo": 57,
+                "id": "CONT2",
                 "location": "",
-                "name": "Condition 2"
+                "name": "Contacts 2"
+            },
+            {
+                "sNo": 58,
+                "id": "CONT3",
+                "location": "",
+                "name": "Contacts 3"
+            },
+            {
+                "sNo": 59,
+                "id": "CONT4",
+                "location": "",
+                "name": "Contacts 4"
+            },
+            {
+                "sNo": 60,
+                "id": "CONT5",
+                "location": "",
+                "name": "Contacts 5"
             }
         ],
         "conditionLibrary": [
             {
-                "sNo": 1,
-                "id": "COND1",
+                "sNo": 56,
+                "id": "CONT1",
                 "location": "",
-                "name": "Condition 1",
-                "enable": 0,
+                "name": "Contacts 1",
+                "enable": false,
                 "state": "",
                 "duration": "00:00",
                 "conditionIsTrueWhen": "",
                 "fromTime": "00:00",
                 "untilTime": "00:00",
-                "notification": 0,
+                "notification": false,
                 "usedByProgram": ""
             },
             {
-                "sNo": "2",
-                "id": "COND2",
+                "sNo": 57,
+                "id": "CONT2",
                 "location": "",
-                "name": "Condition 2",
-                "enable": 0,
+                "name": "Contacts 2",
+                "enable": false,
                 "state": "",
                 "duration": "00:00",
                 "conditionIsTrueWhen": "",
                 "fromTime": "00:00",
                 "untilTime": "00:00",
-                "notification": 0,
+                "notification": false,
+                "usedByProgram": ""
+            },
+            {
+                "sNo": 58,
+                "id": "CONT3",
+                "location": "",
+                "name": "Contacts 3",
+                "enable": false,
+                "state": "",
+                "duration": "00:00",
+                "conditionIsTrueWhen": "",
+                "fromTime": "00:00",
+                "untilTime": "00:00",
+                "notification": false,
+                "usedByProgram": ""
+            },
+            {
+                "sNo": 59,
+                "id": "CONT4",
+                "location": "",
+                "name": "Contacts 4",
+                "enable": false,
+                "state": "",
+                "duration": "00:00",
+                "conditionIsTrueWhen": "",
+                "fromTime": "00:00",
+                "untilTime": "00:00",
+                "notification": false,
+                "usedByProgram": ""
+            },
+            {
+                "sNo": 60,
+                "id": "CONT5",
+                "location": "",
+                "name": "Contacts 5",
+                "enable": false,
+                "state": "",
+                "duration": "00:00",
+                "conditionIsTrueWhen": "",
+                "fromTime": "00:00",
+                "untilTime": "00:00",
+                "notification": false,
                 "usedByProgram": ""
             }
         ]

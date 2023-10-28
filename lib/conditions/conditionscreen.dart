@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:nameconfig/conditions/condition_model.dart';
 import 'package:nameconfig/conditions/conditionwebui.dart';
  import 'package:nameconfig/service/http_services.dart';
 
@@ -19,7 +20,7 @@ class _ConditionScreenWidgetState extends State<ConditionScreenWidget>
       builder: (context, constraints) {
         if (constraints.maxWidth <= 600) {
           // Render mobile content
-          return const ConditionUI();
+          return ConditionUI();
         } else {
           // Render web content
           return  ConditionwebUI();
@@ -37,133 +38,162 @@ class ConditionUI extends StatefulWidget {
 }
 
 class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin {
-  dynamic jsondata;
-  int tabclickindex = 0;
-
-  List<String> Conditionlist = [
-    'con1',
-    'con2',
-    'con3',
-    'con4',
-    'con5',
-    'con6',
-    'con7',
-    'con8',
-    'con9',
-  ];
-    List<String> Conditionhdrlist = [
+   dynamic jsondata;
+  TimeOfDay _selectedTime = TimeOfDay.now();
+  List<String> conditionhdrlist = [
     'ID',
     'Name',
     'Enable',
     'State',
     'Duration',
-    'Contion with ',
+    'Contion with',
     'From Hour',
     'Unit Hour',
     'Notification',
     'Used Program',
-  ];
+   ];
   String usedprogramdropdownstr = '';
-List<String> usedprogramdropdownlist = ['Program Starting',
-'Program Ending','Program is Running','Program is Not Running','Contact is opened','Contact is closed','Contact is opening','Contact is closing'];
-    String usedprogramdropdownstr2 = '';
-List<String> usedprogramdropdownlist2 = ['Program Starting',
-'Program Ending','Program is Running','Program is Not Running','Contact is opened','Contact is closed','Contact is opening','Contact is closing'];
- 
+  List<UserNames>? usedprogramdropdownlist = [];
+  String usedprogramdropdownstr2 = '';
+  ConditionModel _conditionModel = ConditionModel();
+  String hint = 'Enter Flow Values';
+  String dropdowntitle = '';
+  String valueforwhentrue = '';
+  int Selectindexrow = 0;
+  int tabclickindex = 0;
 
   @override
   void initState() {
     super.initState();
-    // fetchData();
+     fetchData();
   }
 
-  Future<void> fetchData() async {
-    Map<String, Object> body = {"userId": '1', "controllerId": '1'};
-    final response = await HttpService().postRequest("getgroups", body);
-    print(jsonDecode(response.body));
-    if (response.statusCode == 200) {
+  Future<void> fetchData() async { 
+    Map<String, Object> body = {"userId": '8', "controllerId": '1'};
+    final response = await HttpService().postRequest("getUserPlanningCondition", body);
+     if (response.statusCode == 200) {
       setState(() {
-        final jsondata1 = jsonDecode(response.body);
-        jsondata = jsondata1['data'];
-        print('--jsondata--------$jsondata');
+        var jsondata1 = jsonDecode(response.body);
+        print('jsondata1 $jsondata1');
+        _conditionModel = ConditionModel.fromJson(jsondata1);
+   _conditionModel.data!.dropdown!.insert(0, '');
       });
     } else {
       //_showSnackBar(response.body);
     }
   }
 
+    @override  void checklistdropdown() {
+    setState(() {
+      if (usedprogramdropdownstr.contains('Program')) {
+        usedprogramdropdownlist = _conditionModel.data!.program;
+        dropdowntitle = 'Program';
+        hint = 'Programs';
+      }
+      if (usedprogramdropdownstr.contains('Contact')) {
+        usedprogramdropdownlist = _conditionModel.data!.contact;
+        dropdowntitle = 'Contact';
+        hint = 'Contacts';
+      }
+      if (usedprogramdropdownstr.contains('Sensor')) {
+        usedprogramdropdownlist = _conditionModel.data!.analogSensor;
+        dropdowntitle = 'Value';
+        hint = 'Values';
+      }
+      if (usedprogramdropdownstr.contains('Water')) {
+        usedprogramdropdownlist = _conditionModel.data!.waterMeter;
+        dropdowntitle = 'Water Meter';
+        hint = 'Flow';
+      }
+      if (usedprogramdropdownstr.contains('Conbined')) {
+        usedprogramdropdownlist = _conditionModel.data!.waterMeter;
+         dropdowntitle = 'Expression';
+         hint = 'Expression';
+      }
+    });
+  }
+
+  Future<String> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+    );
+    if (picked != null && picked != _selectedTime) {
+         _selectedTime = picked;
+     }
+    return '${_selectedTime.hour}:${_selectedTime.minute}';
+  }
+
+
   @override
   Widget build(BuildContext context) {
+     if (_conditionModel.data == null) {
+      return Center(child: CircularProgressIndicator()); // Or handle the null case in a way that makes sense for your application
+    } else {
     return DefaultTabController(
-      length: Conditionlist.length,
+      length: _conditionModel.data!.conditionLibrary!.length ?? 0,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Scaffold(
           appBar: AppBar(
             title: const Text('Conditions Library'),
             backgroundColor: Color.fromARGB(255, 31, 164, 231),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Container(
-                  color: Colors.white,
-                  child: TabBar(
-                    labelColor: Colors.deepOrange,
-                    indicatorColor: const Color.fromARGB(255, 175, 73, 73),
-                    isScrollable: true,
-                    
-                    // controller: _tabController,
-                    tabs: [
-                      for (var i = 0; i < Conditionlist.length; i++)
-                        Tab(
-                          text: Conditionlist[i].toString(),
-                        ),
-                    ],
-                    onTap: (value) {
+            bottom: TabBar(
+            indicatorColor: const Color.fromARGB(255, 175, 73, 73),
+            isScrollable: true,
+            tabs: [
+              for (var i = 0; i <  _conditionModel.data!.conditionLibrary!.length; i++)
+                Tab(
+                  text:  _conditionModel.data!.conditionLibrary![i].name,
+                ),
+            ],
+         onTap: (value) {
                       setState(() {
                         tabclickindex = value;
                       });
                       
                     },
-                  ),
+          ),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+               decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3),  
                 ),
- Expanded(
-  child:
-  Padding(
-    padding: const EdgeInsets.only(bottom: 50),
-    child: Container(margin: EdgeInsets.all(30),
-     child: SingleChildScrollView(
-       child: Column(children: [
-       ListTile(title: Text(Conditionhdrlist[0]),trailing: Text('Conditions ${tabclickindex+1}'),tileColor: Colors.lightBlue[400],),
-       ListTile(title: Text(Conditionhdrlist[1]),trailing: Text('data'),),
-       ListTile(title: Text(Conditionhdrlist[2]),trailing: Text('data'),),
-       ListTile(title: Text(Conditionhdrlist[3]),trailing: Text('data'),),
-       ListTile(title: Text(Conditionhdrlist[4]),trailing: Text('data'),),
-       ListTile(title: Text(Conditionhdrlist[5]),trailing: Text('data'),),
-       ListTile(title: Text(Conditionhdrlist[6]),trailing: Text('data'),),
-       ListTile(title: Text(Conditionhdrlist[7]),trailing: Text('data'),),
-       ListTile(title: Text(Conditionhdrlist[8]),trailing: Text('data'),),
-       ListTile(title: Text(Conditionhdrlist[9]),trailing: Text('data'),),
-       ]),
-     ),
-   ),
-  ),
- )
               ],
             ),
+              child: TabBarView(children: [
+              for (var i = 0; i <  _conditionModel.data!.conditionLibrary!.length; i++)
+                 Expanded(child:
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 50),
+                            child: SingleChildScrollView(
+                              child: Column(children: [
+                               Container(width: double.infinity,height: 40,child:Center(child: Text('${i+1}. ${_conditionModel.data!.conditionLibrary![i].id}')),color: Colors.amber,) ,
+                              Card(child: ListTile(title: Text(conditionhdrlist[1]),trailing: Text(_conditionModel.data!.conditionLibrary![i].name.toString()),)),
+                              Card(child: ListTile(title: Text(conditionhdrlist[2]),trailing: Text(_conditionModel.data!.conditionLibrary![i].enable.toString()),)),
+                              Card(child: ListTile(title: Text(conditionhdrlist[3]),trailing: Text(_conditionModel.data!.conditionLibrary![i].state.toString()),)),
+                              Card(child: ListTile(title: Text(conditionhdrlist[4]),trailing: Text(_conditionModel.data!.conditionLibrary![i].duration.toString()),)),
+                              Card(child: ListTile(title: Text(conditionhdrlist[5]),trailing: Text(_conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen.toString()),)),
+                              Card(child: ListTile(title: Text(conditionhdrlist[6]),trailing: Text(_conditionModel.data!.conditionLibrary![i].fromTime.toString()),)),
+                              Card(child: ListTile(title: Text(conditionhdrlist[7]),trailing: Text(_conditionModel.data!.conditionLibrary![i].untilTime.toString()),)),
+                              Card(child: ListTile(title: Text(conditionhdrlist[8]),trailing: Text(_conditionModel.data!.conditionLibrary![i].notification.toString()),)),
+                              Card(child: ListTile(title: Text(conditionhdrlist[9]),trailing: Text(_conditionModel.data!.conditionLibrary![i].usedByProgram.toString()),)),
+                              ]),
+                            ),
+                          ),
+                         )
+            ]),),
           ),
-          // child: TabBarView(
-          //   // controller: _tabController,
-          //   children: [
-          //     for (int i = 0; i < jsondata.length; i++)
-          //       jsondata[i]['userName'].length == 0
-          //           ? Container()
-          //           : buildTab(jsondata[i]['userName'], i),
-          //   ],
-          // ),
-          // ),
+  
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
               Map<String, Object> body = {
@@ -184,81 +214,6 @@ List<String> usedprogramdropdownlist2 = ['Program Starting',
       ),
     );
   }
-
-  Widget buildTab(List<dynamic> usernamedata, int t) {
-    List<String> heading = ['id', 'location', 'name'];
-    int titlecountcheck = 3;
-    int itemcount = usernamedata.length;
-
-    if (usernamedata[0]['location'] == "") {
-      titlecountcheck = 2;
-      heading = ['id', 'name'];
-    }
-
-    return Column(
-      children: [
-        Container(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Container(
-                  child: TextFormField(
-                    readOnly: true,
-                    initialValue: 'ID',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              titlecountcheck == 3
-                  ? Expanded(
-                      child: Container(
-                        child: TextFormField(
-                          readOnly: true,
-                          initialValue: 'Location',
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-                  : Container(),
-              Expanded(
-                child: Container(
-                  child: TextFormField(
-                    readOnly: true,
-                    initialValue: 'Name',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Flexible(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 70, left: 10, right: 10),
-            child: ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    Container(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          for (int i = 0; i < 5; i++)
-                            Expanded(
-                              child: Container(),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      ],
-    );
   }
+
 }

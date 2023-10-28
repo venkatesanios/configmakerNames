@@ -58,7 +58,8 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
     }
   }
 
-  void checklistdropdown() {
+
+  @override  void checklistdropdown() {
     setState(() {
       if (usedprogramdropdownstr.contains('Program')) {
         usedprogramdropdownlist = _conditionModel.data!.program;
@@ -99,10 +100,11 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
     return '${_selectedTime.hour}:${_selectedTime.minute}';
   }
 
-  @override
   Widget build(BuildContext context) {
-    // if(_conditionModel.code != 200){return sh}
-    return Padding(
+         if (_conditionModel.data == null) {
+      return Center(child: CircularProgressIndicator()); // Or handle the null case in a way that makes sense for your application
+    } else {
+     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Scaffold(
         appBar: AppBar(
@@ -226,44 +228,37 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
                                     DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
                                     }); },Center(
-                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].id}',
-                                                                          )))
+                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].id}',  )))
                                   else if (conditionhdrlist[i] == 'Name')
                                     DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
                                     }); },Center(
-                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].name}',
-                                                                          )))
+                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].name}',  )))
                                   else if (conditionhdrlist[i] == 'Contion with')
                                     DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
                                     }); },Center(
                                         child: Container(
-                                          child: Text(  '${_conditionModel.data!.conditionLibrary![index].conditionIsTrueWhen}',
-                                                                            ),
+                                          child: Text(  '${_conditionModel.data!.conditionLibrary![index].conditionIsTrueWhen}', ),
                                         )))
                                   else if (conditionhdrlist[i] == 'State')
                                     DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
                                     }); },Center(
-                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].state}',
-                                                                          )))
+                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].state}', )))
                                   else if (conditionhdrlist[i] == 'Used Program')
                                     DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
                                     }); },
                                       Center(
-                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].usedByProgram}',
-                                                                          )))
+                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].usedByProgram}', )))
                                   
                                   else
                                      DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
                                     }); },
                                       Center(
-                                        child: Text(
-                                                                            'data',
-                                                                          )))
+                                        child: Text( 'data',)))
                               ], 
       //                          onSelectChanged: (isSelected) {
       //    print('Row $index selected: $isSelected');
@@ -368,14 +363,19 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
       ),
     );
   }
+  }
   updateconditions() async
 {    
-  var _conditionModel2 = jsonEncode(_conditionModel.data!.conditionLibrary);
+
+  //List<Map<String, dynamic>> nameListJson =  widget.names.map((name) => name.toJson()).toList();
+  var dydata =  _conditionModel!.data!.conditionLibrary;
+  // var _conditionModel2 = jsonEncode(_conditionModel.data!.conditionLibrary);
+  List<Map<String, dynamic>> _conditionModel = _conditionModel.data!.conditionLibrary.map((name) => name.toJson()).toList();
     
   Map<String, Object> body = {
     "userId": '8',
     "controllerId": "1",
-    "condition": "$_conditionModel2",
+    "condition": "$_conditionModel",
     "createUser": "1"
   };
   print(body);
