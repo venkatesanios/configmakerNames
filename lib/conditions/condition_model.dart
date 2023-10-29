@@ -113,6 +113,8 @@ class ConditionLibrary {
     String? untilTime;
     bool? notification;
     String? usedByProgram;
+    String? program;
+    String? zone;
 
     ConditionLibrary({
         this.sNo,
@@ -127,6 +129,8 @@ class ConditionLibrary {
         this.untilTime,
         this.notification,
         this.usedByProgram,
+        this.program,
+        this.zone,
     });
 
     factory ConditionLibrary.fromJson(Map<String, dynamic> json) => ConditionLibrary(
@@ -142,6 +146,8 @@ class ConditionLibrary {
         untilTime: json["untilTime"],
         notification: json["notification"],
         usedByProgram: json["usedByProgram"],
+        program: json["program"],
+        zone: json["zone"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -157,5 +163,7 @@ class ConditionLibrary {
         "untilTime": untilTime,
         "notification": notification,
         "usedByProgram": usedByProgram,
+        "program": usedByProgram,
+        "zone": usedByProgram,
     };
 }

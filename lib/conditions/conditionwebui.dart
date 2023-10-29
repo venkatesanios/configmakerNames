@@ -27,6 +27,8 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
     'Unit Hour',
     'Notification',
     'Used Program',
+    'Zone',
+    'Program',
    ];
   String usedprogramdropdownstr = '';
   List<UserNames>? usedprogramdropdownlist = [];
@@ -36,6 +38,9 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
   String dropdowntitle = '';
   String valueforwhentrue = '';
   int Selectindexrow = 0;
+  String programstr = '';
+  String zonestr = '';
+
 
   @override
   void initState() {
@@ -51,17 +56,49 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
       setState(() {
         var jsondata1 = jsonDecode(response.body);
         _conditionModel = ConditionModel.fromJson(jsondata1);
-   _conditionModel.data!.dropdown!.insert(0, '');
+        _conditionModel.data!.dropdown!.insert(0, '');
       });
     } else {
       //_showSnackBar(response.body);
     }
   }
-
-
-  @override  void checklistdropdown() {
-    setState(() {
+String conditionselection(String name,String id ,String value)
+{
+   programstr = '';
+   zonestr = '';
+  String  conditionselectionstr = '';
       if (usedprogramdropdownstr.contains('Program')) {
+        usedprogramdropdownstr.split('is');
+        conditionselectionstr = 'Programs is $id ${usedprogramdropdownstr[1]}';
+        programstr = id;
+      }
+      if (usedprogramdropdownstr.contains('Sensor')) {
+        conditionselectionstr = 'Sensor is $id value $value ';
+      }
+      if (usedprogramdropdownstr.contains('Contact')) {
+        conditionselectionstr = 'Contact is $id ${usedprogramdropdownstr[1]}';
+      }
+      if (usedprogramdropdownstr.contains('Water')) {
+        conditionselectionstr = 'Water Meter $id ${usedprogramdropdownstr[1]} $value';
+      }
+      if (usedprogramdropdownstr.contains('Conbined')) {
+        conditionselectionstr = '${usedprogramdropdownstr[0]} $value';
+      }
+        if (usedprogramdropdownstr.contains('Zone')) {
+        conditionselectionstr = '${usedprogramdropdownstr[0]} $value';
+        zonestr = name;
+      }
+ 
+  return conditionselectionstr;
+}
+
+  @override  void checklistdropdown() async{
+    print('checklistdropdown insert');
+    usedprogramdropdownlist = [];
+    dropdowntitle = '';
+     hint = '';
+
+       if (usedprogramdropdownstr.contains('Program'))  {
         usedprogramdropdownlist = _conditionModel.data!.program;
         dropdowntitle = 'Program';
         hint = 'Programs';
@@ -86,7 +123,8 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
          dropdowntitle = 'Expression';
          hint = 'Expression';
       }
-    });
+    print(jsonEncode(usedprogramdropdownlist));
+     print('checklistdropdown out');
   }
 
   Future<String> _selectTime(BuildContext context) async {
@@ -101,6 +139,10 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
   }
 
   Widget build(BuildContext context) {
+    print('build');
+    print(jsonEncode(usedprogramdropdownlist));
+    print(jsonEncode(_conditionModel.data!.dropdown));
+       print('---build');
          if (_conditionModel.data == null) {
       return Center(child: CircularProgressIndicator()); // Or handle the null case in a way that makes sense for your application
     } else {
@@ -252,7 +294,18 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
                                     }); },
                                       Center(
                                         child: Text( '${_conditionModel.data!.conditionLibrary![index].usedByProgram}', )))
+                                  else if (conditionhdrlist[i] == 'Zone')
+                                    DataCell(onTap: () { setState(() {
+                                      Selectindexrow = index;
+                                    }); },Center(
+                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].zone}',  )))
+                                  else if (conditionhdrlist[i] == 'Program')
+                                    DataCell(onTap: () { setState(() {
+                                      Selectindexrow = index;
+                                    }); },Center(
+                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].program}',  )))
                                   
+                                 
                                   else
                                      DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
@@ -305,15 +358,15 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
                         setState(() {
                            usedprogramdropdownstr = value.toString();
                           checklistdropdown();
+                            print(usedprogramdropdownstr);
+                          //   print(jsonEncode(_conditionModel.data!.dropdown));
                         });
                       },
-                      value: usedprogramdropdownstr == '' ? _conditionModel.data!.dropdown![0] : usedprogramdropdownstr,
+                     value: usedprogramdropdownstr == '' ? _conditionModel.data!.dropdown![0] : usedprogramdropdownstr,
                     ),
                     if(usedprogramdropdownlist?.length != 0) 
                        Text(dropdowntitle), 
                     if(usedprogramdropdownlist?.length != 0) 
-
-                      
                       DropdownButton(
                         items: usedprogramdropdownlist?.map((UserNames items) {
                           return DropdownMenuItem(
@@ -322,11 +375,13 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
                           );
                         }).toList(),
                         onChanged: (value) {
-                          setState(() {
+                          // setState(() {
+                            print(value);
+                                  print(jsonEncode(usedprogramdropdownlist));
                              usedprogramdropdownstr2 = value.toString();
-                          });
+                          // });
                         },
-                        value: usedprogramdropdownstr2 == '' ? '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})' : usedprogramdropdownstr2,
+                         value: usedprogramdropdownstr2 == '' ? '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})' : usedprogramdropdownstr2,
                       ),
                     if(usedprogramdropdownstr.contains('Sensor') || usedprogramdropdownstr.contains('Combined') || usedprogramdropdownstr.contains('Contact'))
                           Padding(
@@ -344,7 +399,10 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
                   ElevatedButton(onPressed: (){
                      print(valueforwhentrue);
                     setState(() {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = '$usedprogramdropdownstr $usedprogramdropdownstr2 $valueforwhentrue';
+                        _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
+                        _conditionModel.data!.conditionLibrary![Selectindexrow].program = programstr;
+                        _conditionModel.data!.conditionLibrary![Selectindexrow].zone = zonestr;
+
                      });
                   }, child: const Text('Apply Changes'))      
                   ],
@@ -364,6 +422,7 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
     );
   }
   }
+  
   updateconditions() async
 {    
    List<Map<String, dynamic>> conditionJson =  _conditionModel.data!.conditionLibrary!.map((condition) => condition.toJson()).toList();

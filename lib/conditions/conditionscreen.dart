@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:nameconfig/conditions/condition_model.dart';
 import 'package:nameconfig/conditions/conditionwebui.dart';
+import 'package:nameconfig/const/custom_switch.dart';
  import 'package:nameconfig/service/http_services.dart';
 
 class ConditionScreenWidget extends StatefulWidget {
@@ -51,6 +52,8 @@ class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin
     'Unit Hour',
     'Notification',
     'Used Program',
+    'Zone',
+    'Program',
    ];
   String usedprogramdropdownstr = '';
   List<UserNames>? usedprogramdropdownlist = [];
@@ -61,6 +64,8 @@ class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin
   String valueforwhentrue = '';
   int Selectindexrow = 0;
   int tabclickindex = 0;
+  String programstr = '';
+  String zonestr = '';
 
   @override
   void initState() {
@@ -124,9 +129,39 @@ class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin
     return '${_selectedTime.hour}:${_selectedTime.minute}';
   }
 
+String conditionselection(String name,String id ,String value)
+{
+   programstr = '';
+   zonestr = '';
+  String  conditionselectionstr = '';
+      if (usedprogramdropdownstr.contains('Program')) {
+        usedprogramdropdownstr.split('is');
+        conditionselectionstr = 'Programs is $id ${usedprogramdropdownstr[1]}';
+        programstr = id;
+      }
+      if (usedprogramdropdownstr.contains('Sensor')) {
+        conditionselectionstr = 'Sensor is $id value $value ';
+      }
+      if (usedprogramdropdownstr.contains('Contact')) {
+        conditionselectionstr = 'Contact is $id ${usedprogramdropdownstr[1]}';
+      }
+      if (usedprogramdropdownstr.contains('Water')) {
+        conditionselectionstr = 'Water Meter $id ${usedprogramdropdownstr[1]} $value';
+      }
+      if (usedprogramdropdownstr.contains('Conbined')) {
+        conditionselectionstr = '${usedprogramdropdownstr[0]} $value';
+      }
+        if (usedprogramdropdownstr.contains('Zone')) {
+        conditionselectionstr = '${usedprogramdropdownstr[0]} $value';
+        zonestr = name;
+      }
+ 
+  return conditionselectionstr;
+}
 
   @override
   Widget build(BuildContext context) {
+    print( _conditionModel.data!.conditionLibrary!);
      if (_conditionModel.data == null) {
       return Center(child: CircularProgressIndicator()); // Or handle the null case in a way that makes sense for your application
     } else {
@@ -143,9 +178,9 @@ class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin
             isScrollable: true,
             tabs: [
               for (var i = 0; i <  _conditionModel.data!.conditionLibrary!.length; i++)
-                Tab(
-                  text:  _conditionModel.data!.conditionLibrary![i].name,
-                ),
+                 Tab(
+                     text:  _conditionModel.data!.conditionLibrary![i].name ?? 'Condition',
+                    ),
             ],
          onTap: (value) {
                       setState(() {
@@ -172,30 +207,134 @@ class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin
             ),
               child: TabBarView(children: [
               for (var i = 0; i <  _conditionModel.data!.conditionLibrary!.length; i++)
-                 Expanded(child:
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 50),
-                            child: SingleChildScrollView(
-                              child: Column(children: [
-                               Container(width: double.infinity,height: 40,child:Center(child: Text('${i+1}. ${_conditionModel.data!.conditionLibrary![i].id}')),color: Colors.amber,) ,
-                              Card(child: ListTile(title: Text(conditionhdrlist[1]),trailing: Text(_conditionModel.data!.conditionLibrary![i].name.toString()),)),
-                              Card(child: ListTile(title: Text(conditionhdrlist[2]),trailing: Text(_conditionModel.data!.conditionLibrary![i].enable.toString()),)),
-                              Card(child: ListTile(title: Text(conditionhdrlist[3]),trailing: Text(_conditionModel.data!.conditionLibrary![i].state.toString()),)),
-                              Card(child: ListTile(title: Text(conditionhdrlist[4]),trailing: Text(_conditionModel.data!.conditionLibrary![i].duration.toString()),)),
-                              Card(child: ListTile(title: Text(conditionhdrlist[5]),trailing: Text(_conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen.toString()),)),
-                              Card(child: ListTile(title: Text(conditionhdrlist[6]),trailing: Text(_conditionModel.data!.conditionLibrary![i].fromTime.toString()),)),
-                              Card(child: ListTile(title: Text(conditionhdrlist[7]),trailing: Text(_conditionModel.data!.conditionLibrary![i].untilTime.toString()),)),
-                              Card(child: ListTile(title: Text(conditionhdrlist[8]),trailing: Text(_conditionModel.data!.conditionLibrary![i].notification.toString()),)),
-                              Card(child: ListTile(title: Text(conditionhdrlist[9]),trailing: Text(_conditionModel.data!.conditionLibrary![i].usedByProgram.toString()),)),
-                              ]),
+                 Padding(
+                   padding: const EdgeInsets.only(bottom: 50),
+                   child: SingleChildScrollView(
+                     child: Column(children: [
+                     Container(width: double.infinity,height: 40,child:Center(child: Text('${i+1}. ${_conditionModel.data!.conditionLibrary![i].id}')),color: Colors.amber,) ,
+                     Card(child: ListTile(title: Text(conditionhdrlist[1]),trailing: Text(_conditionModel.data!.conditionLibrary![i].name.toString()),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[2]),trailing: MySwitch(
+                               value: _conditionModel.data!.conditionLibrary![i].enable ?? false,
+                               onChanged: ((value) {
+                                 setState(() {
+                                     _conditionModel.data!.conditionLibrary![i].enable = value;
+                                  });
+                                }),
+                             ),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[3]),trailing: Text(_conditionModel.data!.conditionLibrary![i].state.toString()),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[4]),trailing: Container(
+                       child: InkWell(
+                                                  child: Text(
+                       '${_conditionModel.data!.conditionLibrary![i].duration}',
+                       style: const TextStyle(fontSize: 20),
+                                                  ),
+                                                  onTap: () async{
+                       String time =  await _selectTime(context);
+                       setState(()  {
+                       _conditionModel.data!.conditionLibrary![i].duration = time;
+                       });
+                                                  },
+                                                ),
+                     ),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[5]),trailing: Text(_conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen.toString()),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[10]),trailing: Text(_conditionModel.data!.conditionLibrary![i].zone.toString()),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[11]),trailing: Text(_conditionModel.data!.conditionLibrary![i].program.toString()),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[6]),trailing: InkWell(
+                             child: Text(
+                     '${_conditionModel.data!.conditionLibrary![i].fromTime}',
+                     style: const TextStyle(fontSize: 20),
+                             ),
+                             onTap: () async{
+                     String time =  await _selectTime(context);
+                     setState(()  {
+                     _conditionModel.data!.conditionLibrary![i].fromTime = time;
+                     });
+                             
+                             },
+                           ),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[7]),trailing: InkWell(
+                             child: Text(
+                     '${_conditionModel.data!.conditionLibrary![i].untilTime}',
+                     style: const TextStyle(fontSize: 20),
+                             ),
+                             onTap: () async{
+                     String time =  await _selectTime(context);
+                     setState(()  {
+                     _conditionModel.data!.conditionLibrary![i].untilTime = time;
+                     });
+                             
+                             },
+                           ),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[8]),trailing:MySwitch(
+                               value: _conditionModel.data!.conditionLibrary![i].notification ?? false,
+                               onChanged: ((value) {
+                                 setState(() {
+                                     _conditionModel.data!.conditionLibrary![i].notification = value;
+                                  });
+                                }),
+                             ),)),
+                     Card(child: ListTile(title: Text(conditionhdrlist[9]),trailing: Text(_conditionModel.data!.conditionLibrary![i].usedByProgram.toString()),)),
+                     Card(child: ListTile(title: Text('When Program'),trailing:  DropdownButton(
+                      items: _conditionModel.data!.dropdown?.map((String? items) {
+                        return DropdownMenuItem(
+                          value: items,
+                          child: Container(padding: const EdgeInsets.only(left: 10), child: Text(items!)),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          print('value:$value');
+                          print(jsonEncode(_conditionModel.data!.dropdown));
+                            usedprogramdropdownstr = value.toString();
+                          checklistdropdown();
+                            print(jsonEncode(_conditionModel.data!.dropdown));
+
+                        });
+                      },
+                      value: usedprogramdropdownstr == '' ? _conditionModel.data!.dropdown![0] : usedprogramdropdownstr,
+                    ),)),
+                    if(usedprogramdropdownlist?.length != 0) 
+                     Card(child: ListTile(title: Text(dropdowntitle),trailing:  DropdownButton(
+                        items: usedprogramdropdownlist?.map((UserNames items) {
+                          return DropdownMenuItem(
+                            value: '${items.id} (${items.name})',
+                            child: Container(padding: const EdgeInsets.only(left: 10), child: Text('${items.id} (${items.name})')),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                             usedprogramdropdownstr2 = value.toString();
+                          });
+                        },
+                      
+                        value: usedprogramdropdownstr2 == '' ? '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})' : usedprogramdropdownstr2,
+                      ),)),
+                     if(usedprogramdropdownstr.contains('Sensor') || usedprogramdropdownstr.contains('Combined') || usedprogramdropdownstr.contains('Contact'))
+                    Card(child: ListTile(title: Text(hint),trailing: Container(
+                       height: 40,
+                          width: 300,
+                      child: TextField(
+                          // enabled: (usedprogramdropdownstr.contains('Sensor') || usedprogramdropdownstr.contains('Combined') || usedprogramdropdownstr.contains('Contact')) ? true : false,
+                              showCursor: true,
+                              decoration: InputDecoration(hintText: dropdowntitle),
+                              onChanged: (value) {
+                       valueforwhentrue = value;
+                              },
                             ),
-                          ),
-                         )
+                    ),)),
+                                         ]),
+                   ),
+                 )
             ]),),
           ),
   
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
+              setState(() {
+                     _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
+                        _conditionModel.data!.conditionLibrary![Selectindexrow].program = programstr;
+                        _conditionModel.data!.conditionLibrary![Selectindexrow].zone = zonestr;
+              });
               Map<String, Object> body = {
                 "userId": '1',
                 "controllerId": "1",
