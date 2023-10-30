@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:nameconfig/conditions/Alert_message.dart';
 import 'package:nameconfig/conditions/condition_model.dart';
 import 'package:nameconfig/const/custom_switch.dart';
 import 'package:nameconfig/service/http_services.dart';
@@ -22,7 +23,7 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
     'Enable',
     'State',
     'Duration',
-    'Contion with',
+    'condition IsTrueWhen',
     'From Hour',
     'Unit Hour',
     'Notification',
@@ -66,30 +67,34 @@ String conditionselection(String name,String id ,String value)
 {
    programstr = '';
    zonestr = '';
-  String  conditionselectionstr = '';
+   String  conditionselectionstr = '';
       if (usedprogramdropdownstr.contains('Program')) {
-        usedprogramdropdownstr.split('is');
-        conditionselectionstr = 'Programs is $id ${usedprogramdropdownstr[1]}';
+       var usedprogramdropdownstrarr = usedprogramdropdownstr.split('is');
+        conditionselectionstr = 'Programs $id is ${usedprogramdropdownstrarr[1]}';
         programstr = id;
       }
       if (usedprogramdropdownstr.contains('Sensor')) {
-        conditionselectionstr = 'Sensor is $id value $value ';
+         var usedprogramdropdownstrarr = usedprogramdropdownstr.split('is');
+         conditionselectionstr = 'Sensor $id is ${usedprogramdropdownstrarr[1]} value $value ';
       }
       if (usedprogramdropdownstr.contains('Contact')) {
-        conditionselectionstr = 'Contact is $id ${usedprogramdropdownstr[1]}';
+         var usedprogramdropdownstrarr = usedprogramdropdownstr.split('is');
+        conditionselectionstr = 'Contact $id is ${usedprogramdropdownstrarr[1]}';
       }
       if (usedprogramdropdownstr.contains('Water')) {
-        conditionselectionstr = 'Water Meter $id ${usedprogramdropdownstr[1]} $value';
+         var usedprogramdropdownstrarr = usedprogramdropdownstr.split('is');
+        conditionselectionstr = 'Water Meter $id is ${usedprogramdropdownstrarr[1]} $value';
       }
       if (usedprogramdropdownstr.contains('Conbined')) {
-        conditionselectionstr = '${usedprogramdropdownstr[0]} $value';
+         var usedprogramdropdownstrarr = usedprogramdropdownstr.split('is');
+        conditionselectionstr = '${usedprogramdropdownstrarr[0]} $value';
       }
-        if (usedprogramdropdownstr.contains('Zone')) {
-        conditionselectionstr = '${usedprogramdropdownstr[0]} $value';
+      if (usedprogramdropdownstr.contains('Zone')) {
+        var usedprogramdropdownstrarr = usedprogramdropdownstr.split('is');
+        conditionselectionstr = '${usedprogramdropdownstrarr[0]} $value';
         zonestr = name;
       }
- 
-  return conditionselectionstr;
+   return conditionselectionstr;
 }
 
   @override  void checklistdropdown() async{
@@ -110,7 +115,7 @@ String conditionselection(String name,String id ,String value)
       }
       if (usedprogramdropdownstr.contains('Sensor')) {
         usedprogramdropdownlist = _conditionModel.data!.analogSensor;
-        dropdowntitle = 'Value';
+        dropdowntitle = 'Sensor';
         hint = 'Values';
       }
       if (usedprogramdropdownstr.contains('Water')) {
@@ -123,7 +128,10 @@ String conditionselection(String name,String id ,String value)
          dropdowntitle = 'Expression';
          hint = 'Expression';
       }
-    print(jsonEncode(usedprogramdropdownlist));
+      if (usedprogramdropdownlist!.isNotEmpty) {
+          usedprogramdropdownstr2 = usedprogramdropdownstr2 == '' ? '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})' : usedprogramdropdownstr2;
+      }
+ 
      print('checklistdropdown out');
   }
 
@@ -159,7 +167,12 @@ String conditionselection(String name,String id ,String value)
           children: [
             Flexible(
               flex: 3,
-              child: Container(   
+              child: SingleChildScrollView(
+                
+                scrollDirection: Axis.horizontal,
+                child: Container(   
+                  height: double.infinity,
+                  width:  1100,
                   child: DataTable2(
                       columnSpacing: 12,
                       horizontalMargin: 12,
@@ -171,17 +184,19 @@ String conditionselection(String name,String id ,String value)
                                 child: Text(
                               conditionhdrlist[i].toString(),
                               style: const TextStyle(fontWeight: FontWeight.bold),
+                              softWrap: true,
                             )),
                           ),
                       ],
                       rows: List<DataRow>.generate(
                           _conditionModel.data!.conditionLibrary!.length,
                           (index) => DataRow(color: MaterialStateColor.resolveWith((states) {
-        if (index == Selectindexrow) {
-          return Colors.blue.withOpacity(0.5); // Selected row color
-        }
-        return Color.fromARGB(0, 176, 35, 35); 
-      }),
+                      if (index == Selectindexrow) {
+               
+                         return Colors.blue.withOpacity(0.5); // Selected row color
+                      }
+                      return Color.fromARGB(0, 176, 35, 35); 
+                    }),
                             cells: [
                                  for (int i = 0; i < conditionhdrlist.length; i++)
                                   if (conditionhdrlist[i] == 'Enable')
@@ -276,7 +291,7 @@ String conditionselection(String name,String id ,String value)
                                       Selectindexrow = index;
                                     }); },Center(
                                         child: Text( '${_conditionModel.data!.conditionLibrary![index].name}',  )))
-                                  else if (conditionhdrlist[i] == 'Contion with')
+                                  else if (conditionhdrlist[i] == 'condition IsTrueWhen')
                                     DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
                                     }); },Center(
@@ -300,24 +315,23 @@ String conditionselection(String name,String id ,String value)
                                     }); },Center(
                                         child: Text( '${_conditionModel.data!.conditionLibrary![index].zone}',  )))
                                   else if (conditionhdrlist[i] == 'Program')
-                                    DataCell(onTap: () { setState(() {
+                                    DataCell(onTap: () { setState(() { 
                                       Selectindexrow = index;
                                     }); },Center(
                                         child: Text( '${_conditionModel.data!.conditionLibrary![index].program}',  )))
-                                  
-                                 
-                                  else
+                                   else
                                      DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
                                     }); },
                                       Center(
                                         child: Text( 'data',)))
                               ], 
-      //                          onSelectChanged: (isSelected) {
-      //    print('Row $index selected: $isSelected');
-      // },
+                    //                          onSelectChanged: (isSelected) {
+                    //    print('Row $index selected: $isSelected');
+                    // },
                               )
                               ))),
+              ),
             ),
             Flexible(
                 child: Padding(
@@ -347,6 +361,9 @@ String conditionselection(String name,String id ,String value)
                       )),
                     ),
                     const Text('When'), 
+                    if(Selectindexrow != null)
+                        //  changeval(),
+                        
                     DropdownButton(
                       items: _conditionModel.data!.dropdown?.map((String? items) {
                         return DropdownMenuItem(
@@ -362,12 +379,12 @@ String conditionselection(String name,String id ,String value)
                           //   print(jsonEncode(_conditionModel.data!.dropdown));
                         });
                       },
-                     value: usedprogramdropdownstr == '' ? _conditionModel.data!.dropdown![0] : usedprogramdropdownstr,
+                        value: usedprogramdropdownstr == '' ? _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1!.isEmpty ? (_conditionModel.data!.dropdown![0]) : _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1!.toString() : usedprogramdropdownstr,
                     ),
                     if(usedprogramdropdownlist?.length != 0) 
                        Text(dropdowntitle), 
-                    if(usedprogramdropdownlist?.length != 0) 
-                      DropdownButton(
+                    if(usedprogramdropdownstr2.isNotEmpty) 
+                       DropdownButton(
                         items: usedprogramdropdownlist?.map((UserNames items) {
                           return DropdownMenuItem(
                             value: '${items.id} (${items.name})',
@@ -375,35 +392,52 @@ String conditionselection(String name,String id ,String value)
                           );
                         }).toList(),
                         onChanged: (value) {
-                          // setState(() {
+                          setState(() {
                             print(value);
                                   print(jsonEncode(usedprogramdropdownlist));
                              usedprogramdropdownstr2 = value.toString();
-                          // });
+                          });
                         },
-                         value: usedprogramdropdownstr2 == '' ? '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})' : usedprogramdropdownstr2,
+                          value: usedprogramdropdownstr2 == '' ?  _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2!.isEmpty ? ('${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})') : _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1!.toString()  : usedprogramdropdownstr2,
                       ),
                     if(usedprogramdropdownstr.contains('Sensor') || usedprogramdropdownstr.contains('Combined') || usedprogramdropdownstr.contains('Contact'))
                           Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Center(
-                              child: TextField(
-                            showCursor: true,
-                            decoration: InputDecoration(hintText: hint),
-                            onChanged: (value) {
-                              valueforwhentrue = value;
-                            },
-                          )),
+                              child: TextFormField(
+                                initialValue: _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue,
+                                showCursor: true,
+                                decoration: InputDecoration(hintText: hint),
+                                onChanged: (value) {
+                        valueforwhentrue = value;
+                          validator: (value) {
+                  if (value == null || value.isEmpty) {
+                      valueforwhentrue = '0';
+                  }
+                  else{
+                      valueforwhentrue = value;
+                  }
+                  return null;
+                };
+                                },
+                              ),),
                         ),
                         const SizedBox(height: 20,),  
                   ElevatedButton(onPressed: (){
                      print(valueforwhentrue);
+                     if (valueforwhentrue.isNotEmpty) {valueforwhentrue = '0.0';}
                     setState(() {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
+                         _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
                         _conditionModel.data!.conditionLibrary![Selectindexrow].program = programstr;
                         _conditionModel.data!.conditionLibrary![Selectindexrow].zone = zonestr;
-
+                        _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 = usedprogramdropdownstr;
+                        _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
+                        _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = valueforwhentrue;
                      });
+                  
+                    
+                     
+                    
                   }, child: const Text('Apply Changes'))      
                   ],
                 ),
@@ -422,6 +456,13 @@ String conditionselection(String name,String id ,String value)
     );
   }
   }
+
+ changeval (){
+             usedprogramdropdownstr = _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1!;
+             usedprogramdropdownstr2 = _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2!;
+             valueforwhentrue = _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue!;
+             checklistdropdown();
+  }
   
   updateconditions() async
 {    
@@ -436,7 +477,8 @@ String conditionselection(String name,String id ,String value)
      final response =
       await HttpService().postRequest("createUserPlanningCondition", body);
   final jsonDataresponse = json.decode(response.body);
-  print('jsonDataresponse:- $jsonDataresponse');
+  AlertDialogHelper.showAlert(context, '', jsonDataresponse['message']);
+  // print("jsonDataresponse:- ${jsonDataresponse['message']} ");
 }
 
 }

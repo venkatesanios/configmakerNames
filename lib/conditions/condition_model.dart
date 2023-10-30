@@ -115,6 +115,10 @@ class ConditionLibrary {
     String? usedByProgram;
     String? program;
     String? zone;
+    String? dropdown1;
+    String? dropdown2;
+    String? dropdownValue;
+
 
     ConditionLibrary({
         this.sNo,
@@ -131,6 +135,10 @@ class ConditionLibrary {
         this.usedByProgram,
         this.program,
         this.zone,
+        this.dropdown1,
+        this.dropdown2,
+        this.dropdownValue,
+
     });
 
     factory ConditionLibrary.fromJson(Map<String, dynamic> json) => ConditionLibrary(
@@ -148,6 +156,9 @@ class ConditionLibrary {
         usedByProgram: json["usedByProgram"],
         program: json["program"],
         zone: json["zone"],
+        dropdown1: json["dropdown1"],
+        dropdown2: json["dropdown2"],
+        dropdownValue: json["dropdownValue"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -164,6 +175,9 @@ class ConditionLibrary {
         "notification": notification,
         "usedByProgram": usedByProgram,
         "program": usedByProgram,
-        "zone": usedByProgram,
+        "zone": zone,
+        "dropdown1": dropdown1,
+        "dropdown2": dropdown2,
+        "dropdownValue": dropdownValue,
     };
 }
