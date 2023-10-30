@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nameconfig/conditions/Alert_message.dart';
 import 'package:nameconfig/conditions/condition_model.dart';
 import 'package:nameconfig/const/custom_switch.dart';
@@ -97,9 +98,9 @@ String conditionselection(String name,String id ,String value)
    return conditionselectionstr;
 }
 
-  @override  void checklistdropdown() async{
-    print('checklistdropdown insert');
-    usedprogramdropdownlist = [];
+  @override 
+  void checklistdropdown() async{
+     usedprogramdropdownlist = [];
     dropdowntitle = '';
      hint = '';
 
@@ -129,11 +130,14 @@ String conditionselection(String name,String id ,String value)
          hint = 'Expression';
       }
       if (usedprogramdropdownlist!.isNotEmpty) {
+        if(usedprogramdropdownstr2 == '') {
           usedprogramdropdownstr2 = usedprogramdropdownstr2 == '' ? '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})' : usedprogramdropdownstr2;
+        } else {
+          usedprogramdropdownstr2 = '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})';
+        }
       }
  
-     print('checklistdropdown out');
-  }
+   }
 
   Future<String> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -143,15 +147,13 @@ String conditionselection(String name,String id ,String value)
     if (picked != null && picked != _selectedTime) {
          _selectedTime = picked;
      }
-    return '${_selectedTime.hour}:${_selectedTime.minute}';
+    final hour = _selectedTime.hour.toString().padLeft(2, '0');
+    final minute = _selectedTime.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 
   Widget build(BuildContext context) {
-    print('build');
-    print(jsonEncode(usedprogramdropdownlist));
-    print(jsonEncode(_conditionModel.data!.dropdown));
-       print('---build');
-         if (_conditionModel.data == null) {
+          if (_conditionModel.data == null) {
       return Center(child: CircularProgressIndicator()); // Or handle the null case in a way that makes sense for your application
     } else {
      return Padding(
@@ -363,8 +365,7 @@ String conditionselection(String name,String id ,String value)
                     const Text('When'), 
                     if(Selectindexrow != null)
                         //  changeval(),
-                        
-                    DropdownButton(
+                     DropdownButton(
                       items: _conditionModel.data!.dropdown?.map((String? items) {
                         return DropdownMenuItem(
                           value: items,
@@ -375,8 +376,7 @@ String conditionselection(String name,String id ,String value)
                         setState(() {
                            usedprogramdropdownstr = value.toString();
                           checklistdropdown();
-                            print(usedprogramdropdownstr);
-                          //   print(jsonEncode(_conditionModel.data!.dropdown));
+                           //   print(jsonEncode(_conditionModel.data!.dropdown));
                         });
                       },
                         value: usedprogramdropdownstr == '' ? _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1!.isEmpty ? (_conditionModel.data!.dropdown![0]) : _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1!.toString() : usedprogramdropdownstr,
@@ -393,8 +393,6 @@ String conditionselection(String name,String id ,String value)
                         }).toList(),
                         onChanged: (value) {
                           setState(() {
-                            print(value);
-                                  print(jsonEncode(usedprogramdropdownlist));
                              usedprogramdropdownstr2 = value.toString();
                           });
                         },
@@ -402,31 +400,23 @@ String conditionselection(String name,String id ,String value)
                       ),
                     if(usedprogramdropdownstr.contains('Sensor') || usedprogramdropdownstr.contains('Combined') || usedprogramdropdownstr.contains('Contact'))
                           Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(20.0),
                           child: Center(
                               child: TextFormField(
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 initialValue: _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue,
                                 showCursor: true,
-                                decoration: InputDecoration(hintText: hint),
+                                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+
+                                decoration: InputDecoration(hintText: hint,border: OutlineInputBorder()),
                                 onChanged: (value) {
                         valueforwhentrue = value;
-                          validator: (value) {
-                  if (value == null || value.isEmpty) {
-                      valueforwhentrue = '0';
-                  }
-                  else{
-                      valueforwhentrue = value;
-                  }
-                  return null;
-                };
-                                },
+                                 },
                               ),),
                         ),
                         const SizedBox(height: 20,),  
                   ElevatedButton(onPressed: (){
-                     print(valueforwhentrue);
-                     if (valueforwhentrue.isNotEmpty) {valueforwhentrue = '0.0';}
-                    setState(() {
+                      setState(() {
                          _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
                         _conditionModel.data!.conditionLibrary![Selectindexrow].program = programstr;
                         _conditionModel.data!.conditionLibrary![Selectindexrow].zone = zonestr;
@@ -434,10 +424,7 @@ String conditionselection(String name,String id ,String value)
                         _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
                         _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = valueforwhentrue;
                      });
-                  
-                    
-                     
-                    
+                   
                   }, child: const Text('Apply Changes'))      
                   ],
                 ),
@@ -474,7 +461,7 @@ String conditionselection(String name,String id ,String value)
     "condition": conditionJson,
     "createUser": "1"
   };
-     final response =
+      final response =
       await HttpService().postRequest("createUserPlanningCondition", body);
   final jsonDataresponse = json.decode(response.body);
   AlertDialogHelper.showAlert(context, '', jsonDataresponse['message']);

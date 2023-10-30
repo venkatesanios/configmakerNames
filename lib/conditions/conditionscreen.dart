@@ -48,7 +48,7 @@ class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin
     'Enable',
     'State',
     'Duration',
-    'Contion with',
+    'condition',
     'From Hour',
     'Unit Hour',
     'Notification',
@@ -83,8 +83,7 @@ class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin
      if (response.statusCode == 200) {
       setState(() {
         var jsondata1 = jsonDecode(response.body);
-        print('jsondata1 $jsondata1');
-        _conditionModel = ConditionModel.fromJson(jsondata1);
+         _conditionModel = ConditionModel.fromJson(jsondata1);
    _conditionModel.data!.dropdown!.insert(0, '');
       });
     } else {
@@ -119,9 +118,14 @@ class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin
          dropdowntitle = 'Expression';
          hint = 'Expression';
       }
- if (usedprogramdropdownlist!.isNotEmpty) {
+  if (usedprogramdropdownlist!.isNotEmpty) {
+        if(usedprogramdropdownstr2 == '') {
           usedprogramdropdownstr2 = usedprogramdropdownstr2 == '' ? '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})' : usedprogramdropdownstr2;
-      }     });
+        } else {
+          usedprogramdropdownstr2 = '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})';
+        }
+      }
+           });
   }
 
   Future<String> _selectTime(BuildContext context) async {
@@ -132,7 +136,12 @@ class _ConditionUIState extends State<ConditionUI> with TickerProviderStateMixin
     if (picked != null && picked != _selectedTime) {
          _selectedTime = picked;
      }
-    return '${_selectedTime.hour}:${_selectedTime.minute}';
+
+     final hour = _selectedTime.hour.toString().padLeft(2, '0');
+    final minute = _selectedTime.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+   
+    // return '${_selectedTime.hour}:${_selectedTime.minute}';
   }
 
 String conditionselection(String name,String id ,String value)
@@ -171,8 +180,7 @@ String conditionselection(String name,String id ,String value)
 
   @override
   Widget build(BuildContext context) {
-    print( _conditionModel.data!.conditionLibrary!);
-     if (_conditionModel.data == null) {
+      if (_conditionModel.data == null) {
       return Center(child: CircularProgressIndicator()); // Or handle the null case in a way that makes sense for your application
     } else {
     return DefaultTabController(
@@ -252,9 +260,10 @@ String conditionselection(String name,String id ,String value)
                                                     },
                                                   ),
                        ),)),
-                       Card(child: ListTile(title: Text(conditionhdrlist[5]),trailing: Text(_conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen.toString()),)),
-                       Card(child: ListTile(title: Text(conditionhdrlist[10]),trailing: Text(_conditionModel.data!.conditionLibrary![i].zone.toString()),)),
-                       Card(child: ListTile(title: Text(conditionhdrlist[11]),trailing: Text(_conditionModel.data!.conditionLibrary![i].program.toString()),)),
+                      //  Card(child: ListTile(title: Text('test',softWrap: true,),trailing: Text(_conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen.toString(),softWrap: true,),)),
+                       Card(child: ListTile(title: Text(conditionhdrlist[5]),trailing: Container(width: 200, child: Text(_conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen.toString(),softWrap: true,overflow: TextOverflow.fade,)),)),
+                       Card(child: ListTile(title: Text(conditionhdrlist[10]),trailing: Text(_conditionModel.data!.conditionLibrary![i].zone.toString(),softWrap: true,),)),
+                       Card(child: ListTile(title: Text(conditionhdrlist[11]),trailing: Text(_conditionModel.data!.conditionLibrary![i].program.toString(),softWrap: true,),)),
                        Card(child: ListTile(title: Text(conditionhdrlist[6]),trailing: InkWell(
                                child: Text(
                        '${_conditionModel.data!.conditionLibrary![i].fromTime}',
@@ -287,7 +296,7 @@ String conditionselection(String name,String id ,String value)
                                     });
                                   }),
                                ),)),
-                       Card(child: ListTile(title: Text(conditionhdrlist[9]),trailing: Text(_conditionModel.data!.conditionLibrary![i].usedByProgram.toString()),)),
+                       Card(child: ListTile(title: Text(conditionhdrlist[9]),trailing: Text(_conditionModel.data!.conditionLibrary![i].usedByProgram.toString(),softWrap: true,),)),
                        Card(child: ListTile(title: Text('When Program'),trailing:  DropdownButton(
                         items: _conditionModel.data!.dropdown?.map((String? items) {
                           return DropdownMenuItem(
@@ -324,8 +333,9 @@ String conditionselection(String name,String id ,String value)
                        if(usedprogramdropdownstr.contains('Sensor') || usedprogramdropdownstr.contains('Combined') || usedprogramdropdownstr.contains('Contact'))
                       Card(child: ListTile(title: Text(hint),trailing: Container(
                          height: 40,
-                            width: 300,
+                            width: 200,
                         child: TextFormField(
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 initialValue: _conditionModel.data!.conditionLibrary![i].dropdownValue,
                                 showCursor: true,
                                 decoration: InputDecoration(hintText: hint),
@@ -353,25 +363,14 @@ String conditionselection(String name,String id ,String value)
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
               setState(() {
-                     if (valueforwhentrue.isEmpty) {
-                       valueforwhentrue = '0.0';
-                     }
-                 
-                print(usedprogramdropdownlist);
-                      usedprogramdropdownstr2 == '' ? '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})' : usedprogramdropdownstr2;
-                     _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
+                    _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
                      _conditionModel.data!.conditionLibrary![Selectindexrow].program = programstr;
                      _conditionModel.data!.conditionLibrary![Selectindexrow].zone = zonestr;
                      _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 = usedprogramdropdownstr;
                      _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
                      _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = valueforwhentrue;
-
-
-                       updateconditions();
-                 
+                       updateconditions();                 
               });
-              
-      
             },
             tooltip: 'Send',
             child: const Icon(Icons.send),
@@ -383,7 +382,7 @@ String conditionselection(String name,String id ,String value)
   }
     updateconditions() async
 {    
-   List<Map<String, dynamic>> conditionJson =  _conditionModel.data!.conditionLibrary!.map((condition) => condition.toJson()).toList();
+    List<Map<String, dynamic>> conditionJson =  _conditionModel.data!.conditionLibrary!.map((condition) => condition.toJson()).toList();
      
   Map<String, Object> body = {
     "userId": '8',
@@ -394,8 +393,7 @@ String conditionselection(String name,String id ,String value)
      final response =
       await HttpService().postRequest("createUserPlanningCondition", body);
   final jsonDataresponse = json.decode(response.body);
-  print('jsonDataresponse:- $jsonDataresponse');
-  AlertDialogHelper.showAlert(context, '', jsonDataresponse['message']);
+   AlertDialogHelper.showAlert(context, '', jsonDataresponse['message']);
 }
 
 }
