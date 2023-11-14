@@ -42,8 +42,8 @@ fetchData();
      });
   }
     Future<void> fetchData() async {
-    Map<String, Object> body = {"userId": '8', "controllerId": '1'};
-    final response = await HttpService().postRequest("getUserPlanningGroup", body);
+    Map<String, Object> body = {"userId": '15', "controllerId": '1'};
+    final response = await HttpService().postRequest("getUserPlanningNamedGroup", body);
      if (response.statusCode == 200) {
       setState(() {
         final jsondata1 = jsonDecode(response.body);
@@ -411,13 +411,13 @@ fetchData();
                  jsondata['group']?[selectedgroupIndex]['valve'] = [];
                 jsondata['group']?[selectedgroupIndex]['location'] = '';
                  Map<String, Object> body = {
-                "userId": '8',
+                "userId": '15',
                 "controllerId": "1",
                 "group": jsondata['group'],
                 "createUser": "1"
               };
                final response =
-                  await HttpService().postRequest("createUserPlanningGroup", body);
+                  await HttpService().postRequest("createUserPlanningNamedGroup", body);
               final jsonDataresponse = json.decode(response.body);
               },
               child: const Icon(Icons.delete),
@@ -434,13 +434,13 @@ fetchData();
                     'Line $selectline';
                      
               Map<String, Object> body = {
-                "userId": '8',
+                "userId": '15',
                 "controllerId": "1",
                 "group": jsondata['group'],
                 "createUser": "1"
               };
                final response =
-                  await HttpService().postRequest("createUserPlanningGroup", body);
+                  await HttpService().postRequest("createUserPlanningNamedGroup", body);
               final jsonDataresponse = json.decode(response.body);
                },
               child: const Icon(Icons.send),
