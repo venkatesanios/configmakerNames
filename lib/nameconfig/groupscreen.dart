@@ -29,20 +29,20 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
   NameListProvider nameListProvider = NameListProvider();
    bool _showDetails = false;
 
-var jsondata ;
+  var jsondata ;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-fetchData();
+    fetchData();
      Timer(Duration(milliseconds: 500), () {
     valueAssign();
     selectvalvelistvalue();
      });
   }
     Future<void> fetchData() async {
-    Map<String, Object> body = {"userId": '15', "controllerId": '1'};
+    Map<String, Object> body = {"userId": '1', "controllerId": '1'};
     final response = await HttpService().postRequest("getUserPlanningNamedGroup", body);
      if (response.statusCode == 200) {
       setState(() {
@@ -411,7 +411,7 @@ fetchData();
                  jsondata['group']?[selectedgroupIndex]['valve'] = [];
                 jsondata['group']?[selectedgroupIndex]['location'] = '';
                  Map<String, Object> body = {
-                "userId": '15',
+                "userId": '1',
                 "controllerId": "1",
                 "group": jsondata['group'],
                 "createUser": "1"
@@ -434,7 +434,7 @@ fetchData();
                     'Line $selectline';
                      
               Map<String, Object> body = {
-                "userId": '15',
+                "userId": '1',
                 "controllerId": "1",
                 "group": jsondata['group'],
                 "createUser": "1"

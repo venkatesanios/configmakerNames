@@ -19,6 +19,7 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
   dynamic jsondata;
   TimeOfDay _selectedTime = TimeOfDay.now();
   List<String> conditionhdrlist = [
+    'sNo',
     'ID',
     'Name',
     'Enable',
@@ -29,8 +30,7 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
     'Unit Hour',
     'Notification',
     'Used Program',
-    'Zone',
-    'Program',
+ 
    ];
   String usedprogramdropdownstr = '';
   List<UserNames>? usedprogramdropdownlist = [];
@@ -42,28 +42,49 @@ class _ConditionwebUIState extends State<ConditionwebUI> with TickerProviderStat
   int Selectindexrow = 0;
   String programstr = '';
   String zonestr = '';
+  List<String> operatorList = ['&&','||','^'];
+  String selectedOperator = '';
+  String selectedValue = '';
+  String selectedCondition = '';
+  List<String> conditionList = [];
+
+
 
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+      initializeData();
   }
+  Future<void> initializeData() async {
+  await fetchData();
+  if (_conditionModel.data != null && _conditionModel.data!.conditionLibrary != null &&
+      _conditionModel.data!.conditionLibrary!.isNotEmpty) {
+    setState(() {
+      for (var i = 0; i < _conditionModel.data!.conditionLibrary!.length; i++) {
+        conditionList.add(_conditionModel.data!.conditionLibrary![i].name!);
+      }
+    });
+  }
+}
 
   Future<void> fetchData() async {
    
-    Map<String, Object> body = {"userId": '8', "controllerId": '1'};
+    Map<String, Object> body = {"userId": '15', "controllerId": '1'};
     final response = await HttpService().postRequest("getUserPlanningConditionLibrary", body);
      if (response.statusCode == 200) {
       setState(() {
         var jsondata1 = jsonDecode(response.body);
         _conditionModel = ConditionModel.fromJson(jsondata1);
         _conditionModel.data!.dropdown!.insert(0, '');
+        
+        
       });
     } else {
       //_showSnackBar(response.body);
     }
   }
+
 String conditionselection(String name,String id ,String value)
 {
    programstr = '';
@@ -283,6 +304,11 @@ String conditionselection(String name,String id ,String value)
                                       
                                       },
                                     )))
+                                  else if (conditionhdrlist[i] == 'sNo')
+                                    DataCell(onTap: () { setState(() {
+                                      Selectindexrow = index;
+                                    }); },Center(
+                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].sNo}',  )))
                                   else if (conditionhdrlist[i] == 'ID')
                                     DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
@@ -311,17 +337,17 @@ String conditionselection(String name,String id ,String value)
                                     }); },
                                       Center(
                                         child: Text( '${_conditionModel.data!.conditionLibrary![index].usedByProgram}', )))
-                                  else if (conditionhdrlist[i] == 'Zone')
-                                    DataCell(onTap: () { setState(() {
-                                      Selectindexrow = index;
-                                    }); },Center(
-                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].zone}',  )))
-                                  else if (conditionhdrlist[i] == 'Program')
-                                    DataCell(onTap: () { setState(() { 
-                                      Selectindexrow = index;
-                                    }); },Center(
-                                        child: Text( '${_conditionModel.data!.conditionLibrary![index].program}',  )))
-                                   else
+                                  // else if (conditionhdrlist[i] == 'Zone')
+                                  //   DataCell(onTap: () { setState(() {
+                                  //     Selectindexrow = index;
+                                  //   }); },Center(
+                                  //       child: Text( '${_conditionModel.data!.conditionLibrary![index].zone}',  )))
+                                  // else if (conditionhdrlist[i] == 'Program')
+                                  //   DataCell(onTap: () { setState(() { 
+                                  //     Selectindexrow = index;
+                                  //   }); },Center(
+                                  //       child: Text( '${_conditionModel.data!.conditionLibrary![index].program}',  )))
+                                    else
                                      DataCell(onTap: () { setState(() {
                                       Selectindexrow = index;
                                     }); },
@@ -398,7 +424,7 @@ String conditionselection(String name,String id ,String value)
                         },
                           value: usedprogramdropdownstr2 == '' ?  _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2!.isEmpty ? ('${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})') : _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1!.toString()  : usedprogramdropdownstr2,
                       ),
-                    if(usedprogramdropdownstr.contains('Sensor') || usedprogramdropdownstr.contains('Combined') || usedprogramdropdownstr.contains('Contact'))
+                    if(usedprogramdropdownstr.contains('Sensor') || usedprogramdropdownstr.contains('Contact'))
                           Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Center(
@@ -415,16 +441,54 @@ String conditionselection(String name,String id ,String value)
                               ),),
                         ),
                         const SizedBox(height: 20,),  
+                    if(usedprogramdropdownstr.contains('Combined'))
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(children: [
+                             DropdownButton<String>(
+                                 value: selectedOperator.isEmpty ? null : selectedOperator,
+                               hint: Text('Select Operator'),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedOperator = value!;
+                                });
+                              },
+                              items: operatorList.map((operator) {
+                                return DropdownMenuItem(
+                                  value: operator,
+                                  child: Text(operator),
+                                );
+                              }).toList(),
+                            ),
+                            SizedBox(width: 16),
+                            DropdownButton<String>(
+                              value: selectedValue.isEmpty ? null : selectedValue,
+                              hint: Text('Select Conditions'),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedValue = value!;
+                                });
+                              },
+                              items: filterlist(conditionList,conditionList[Selectindexrow]).map((condition) {
+                                return DropdownMenuItem(
+                                  value: condition,
+                                  child: Text(condition),
+                                );
+                              }).toList(),
+                            ),
+                          ],)
+                        ),
+                     const SizedBox(height: 20,),      
                   ElevatedButton(onPressed: (){
                       setState(() {
-                         _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
+                        _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = '${conditionList[Selectindexrow]} $selectedOperator $selectedValue';
+                        // _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
                         _conditionModel.data!.conditionLibrary![Selectindexrow].program = programstr;
                         _conditionModel.data!.conditionLibrary![Selectindexrow].zone = zonestr;
                         _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 = usedprogramdropdownstr;
                         _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
                         _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = valueforwhentrue;
                      });
-                   
                   }, child: const Text('Apply Changes'))      
                   ],
                 ),
@@ -451,12 +515,18 @@ String conditionselection(String name,String id ,String value)
              checklistdropdown();
   }
   
+  List<String> filterlist(List<String> conditionlist,String removevalue)
+  {
+     conditionlist = conditionlist.where((item) => item != '$removevalue').toList();
+     return conditionlist;
+   }
+
   updateconditions() async
 {    
    List<Map<String, dynamic>> conditionJson =  _conditionModel.data!.conditionLibrary!.map((condition) => condition.toJson()).toList();
      
   Map<String, Object> body = {
-    "userId": '8',
+    "userId": '15',
     "controllerId": "1",
     "condition": conditionJson,
     "createUser": "1"
