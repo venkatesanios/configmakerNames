@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:nameconfig/conditions/Alert_message.dart';
 import 'package:nameconfig/conditions/condition_model.dart';
 import 'package:nameconfig/const/custom_switch.dart';
+import 'package:nameconfig/mqtt_web_client.dart';
 import 'package:nameconfig/service/http_services.dart';
 import 'package:data_table_2/data_table_2.dart';
 
@@ -36,6 +37,7 @@ class _ConditionwebUIState extends State<ConditionwebUI>
   String usedprogramdropdownstr = '';
   List<UserNames>? usedprogramdropdownlist = [];
   String usedprogramdropdownstr2 = '';
+  String dropdownvalues = '';
   ConditionModel _conditionModel = ConditionModel();
   String hint = 'Enter Flow Values';
   String dropdowntitle = '';
@@ -52,6 +54,7 @@ class _ConditionwebUIState extends State<ConditionwebUI>
   @override
   void initState() {
     super.initState();
+    MqttWebClient().init();
     initializeData();
   }
 
@@ -79,12 +82,16 @@ class _ConditionwebUIState extends State<ConditionwebUI>
         var jsondata1 = jsonDecode(response.body);
         _conditionModel = ConditionModel.fromJson(jsondata1);
         _conditionModel.data!.dropdown!.insert(0, '');
+        // changeval();
+         MqttWebClient().onSubscribed('tweet/');
       });
     } else {
       //_showSnackBar(response.body);
     }
   }
 
+      
+ 
   String conditionselection(String name, String id, String value) {
     programstr = '';
     zonestr = '';
@@ -159,13 +166,11 @@ class _ConditionwebUIState extends State<ConditionwebUI>
       } else {
         usedprogramdropdownstr2 =
             '${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})';
+          
       }
     }
 
-    print("usedprogramdropdownstr  $usedprogramdropdownstr");
-    print("usedprogramdropdownstr2  $usedprogramdropdownstr2");
-    print(
-        "--------------usedprogramdropdownlist-------------------------$usedprogramdropdownlist");
+ 
   }
 
   Future<String> _selectTime(BuildContext context) async {
@@ -480,24 +485,32 @@ class _ConditionwebUIState extends State<ConditionwebUI>
   }
 
   Widget buildProgramselection(String? title, int index) {
+     changeval();
     String conditiontrue =
         _conditionModel.data!.conditionLibrary![index].conditionIsTrueWhen!;
-    String dropdownvalues =
-        _conditionModel.data!.conditionLibrary![index].dropdownValue!;
+ 
     bool containsOnlyNumbers = RegExp(r'^[0-9]+$').hasMatch(dropdownvalues);
     bool containsOnlyOperators = RegExp(r'^[&|^]+$').hasMatch(dropdownvalues);
-    usedprogramdropdownstr =
-        _conditionModel.data!.conditionLibrary![index].dropdown1!;
-    usedprogramdropdownstr2 =
-        _conditionModel.data!.conditionLibrary![index].dropdown2!;
-    if ((usedprogramdropdownstr.contains('Combined') == false)) {
-      if (usedprogramdropdownlist!.contains(usedprogramdropdownstr2)) {
+     
+    if ((usedprogramdropdownstr.contains('Combined') == true)) {
+      if (conditionList.contains(usedprogramdropdownstr2)) {
         usedprogramdropdownstr2 =
             _conditionModel.data!.conditionLibrary![index].dropdown2!;
       } else {
         usedprogramdropdownstr2 = "";
       }
+    }else{
+      if (usedprogramdropdownlist!.contains(usedprogramdropdownstr2)) {
+        usedprogramdropdownstr2 =
+            _conditionModel.data!.conditionLibrary![index].dropdown2!;
+      } else {
+        if (usedprogramdropdownlist!.length > 0) {
+          usedprogramdropdownstr2 = '${usedprogramdropdownlist![0].id} (${usedprogramdropdownlist![0].name})';
+        }
+        
+      }
     }
+             print("after $usedprogramdropdownstr2");
 
     if (conditiontrue.contains("&&")) {
       selectedOperator = "&&";
@@ -565,8 +578,7 @@ class _ConditionwebUIState extends State<ConditionwebUI>
                     : usedprogramdropdownstr,
               ),
             if (usedprogramdropdownlist?.length != 0) Text(dropdowntitle),
-            if (usedprogramdropdownstr.contains('Combined') == false &&
-                usedprogramdropdownstr2.isNotEmpty)
+            if (usedprogramdropdownstr.contains('Combined') == false && usedprogramdropdownlist?.length != 0)
               DropdownButton(
                 hint: Text('--/--'),
                 items: usedprogramdropdownlist?.map((UserNames items) {
@@ -582,14 +594,7 @@ class _ConditionwebUIState extends State<ConditionwebUI>
                     usedprogramdropdownstr2 = value.toString();
                   });
                 },
-                value: usedprogramdropdownstr2 == ''
-                    ? _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .dropdown2!.isEmpty
-                        ? ('${usedprogramdropdownlist?[0].id} (${usedprogramdropdownlist?[0].name})')
-                        : _conditionModel
-                            .data!.conditionLibrary![Selectindexrow].dropdown1!
-                            .toString()
-                    : usedprogramdropdownstr2,
+                value: usedprogramdropdownstr2,
               ),
             if (usedprogramdropdownstr.contains('Sensor') ||
                 usedprogramdropdownstr.contains('Contact') ||
@@ -609,7 +614,10 @@ class _ConditionwebUIState extends State<ConditionwebUI>
                     decoration: InputDecoration(
                         hintText: hint, border: OutlineInputBorder()),
                     onChanged: (value) {
-                      dropdownvalues = value;
+                      setState(() {
+                         dropdownvalues = value;
+                      });
+                     
                     },
                   ),
                 ),
@@ -672,18 +680,68 @@ class _ConditionwebUIState extends State<ConditionwebUI>
             ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
+ if (usedprogramdropdownstr.contains('Program'))
+{
+ _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,'');
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 = usedprogramdropdownstr;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = '';
+ _conditionModel.data!.conditionLibrary![Selectindexrow].usedByProgram = programstr;
+}
+   else if(usedprogramdropdownstr.contains('Contact'))
+{
+     _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,'');
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 =  usedprogramdropdownstr;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = '';
+  // _conditionModel.data!.conditionLibrary![Selectindexrow].usedByProgram = '';
+    
+   }
+   else if(usedprogramdropdownstr.contains('Sensor')){
+      _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,dropdownvalues);
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 = usedprogramdropdownstr;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = dropdownvalues;
+  //  _conditionModel.data!.conditionLibrary![Selectindexrow].usedByProgram = '';
+
+    
+  }
+  else if(usedprogramdropdownstr.contains('Water')){
+     _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = usedprogramdropdownstr;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 = usedprogramdropdownstr;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = dropdownvalues;
+  //  _conditionModel.data!.conditionLibrary![Selectindexrow].usedByProgram = '';
+
+     
+   }
+      else if(usedprogramdropdownstr.contains('Combined')){
+     _conditionModel.data!.conditionLibrary![Selectindexrow]
                             .conditionIsTrueWhen =
                         '${conditionList[Selectindexrow]} $dropdownvalues $usedprogramdropdownstr2';
-                    // _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = conditionselection(usedprogramdropdownstr,usedprogramdropdownstr2,valueforwhentrue);
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .program = programstr;
-                    _conditionModel
-                        .data!.conditionLibrary![Selectindexrow].zone = zonestr;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown1 = usedprogramdropdownstr;
-                    // _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
-                    // _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = valueforwhentrue;
+  _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 = usedprogramdropdownstr;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = usedprogramdropdownstr2;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = dropdownvalues;
+  //  _conditionModel.data!.conditionLibrary![Selectindexrow].usedByProgram = '';
+    
+   }
+         else if(usedprogramdropdownstr.contains('Zone')){
+     _conditionModel.data!.conditionLibrary![Selectindexrow].conditionIsTrueWhen = usedprogramdropdownstr;
+  _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 = usedprogramdropdownstr;
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = '';
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = '';
+  //  _conditionModel.data!.conditionLibrary![Selectindexrow].usedByProgram = '';
+    
+   }
+ else{
+        _conditionModel.data!.conditionLibrary![Selectindexrow]
+                            .conditionIsTrueWhen = '';
+  _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1 = '';
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2 = '';
+ _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue = '';
+  //  _conditionModel.data!.conditionLibrary![Selectindexrow].usedByProgram = '';
+   }
+
                   });
                 },
                 child: const Text('Apply Changes'))
@@ -698,8 +756,9 @@ class _ConditionwebUIState extends State<ConditionwebUI>
         _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown1!;
     usedprogramdropdownstr2 =
         _conditionModel.data!.conditionLibrary![Selectindexrow].dropdown2!;
-    valueforwhentrue =
-        _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue!;
+    // valueforwhentrue =
+    //     _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue!;
+    dropdownvalues = _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue!;
     checklistdropdown();
   }
 
@@ -710,10 +769,17 @@ class _ConditionwebUIState extends State<ConditionwebUI>
   }
 
   updateconditions() async {
+
     List<Map<String, dynamic>> conditionJson = _conditionModel
         .data!.conditionLibrary!
         .map((condition) => condition.toJson())
         .toList();
+ 
+
+         for (var condition in _conditionModel
+        .data!.conditionLibrary!) {
+    print(condition.toMqttformat());
+  }
 
     Map<String, Object> body = {
       "userId": '15',
@@ -727,5 +793,7 @@ class _ConditionwebUIState extends State<ConditionwebUI>
     final jsonDataresponse = json.decode(response.body);
     AlertDialogHelper.showAlert(context, '', jsonDataresponse['message']);
     // print("jsonDataresponse:- ${jsonDataresponse['message']} ");
+
+    // MqttWebClient().publishMessage('tweet/', payLoadFinal);
   }
 }

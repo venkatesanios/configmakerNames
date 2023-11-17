@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 ConditionModel conditionModelFromJson(String str) => ConditionModel.fromJson(json.decode(str));
 
 String conditionModelToJson(ConditionModel data) => json.encode(data.toJson());
@@ -180,4 +182,56 @@ class ConditionLibrary {
         "dropdown2": dropdown2,
         "dropdownValue": dropdownValue,
     };
+
+ Map<String, dynamic> toMqtt() => {
+        "sNo": sNo,
+        "id": id,
+        "location": location,
+        "name": name,
+        "enable": enable,
+        "state": state,
+        "duration": duration,
+        "conditionIsTrueWhen": conditionIsTrueWhen,
+        "fromTime": fromTime,
+        "untilTime": untilTime,
+        "notification": notification,
+        "usedByProgram": usedByProgram,
+        "program": usedByProgram,
+        "zone": zone,
+        "dropdown1": dropdown1,
+        "dropdown2": dropdown2,
+        "dropdownValue": dropdownValue,
+    };
+  String toMqttformat() {
+    String enablevalue = enable! ? '1' : '0';
+    String conditiontrue = conditionIsTrueWhen.contains('other');
+
+if (conditionIsTrueWhen!.contains('Program'))
+{
+}
+else if (conditionIsTrueWhen!.contains('Program'))
+{
+}
+else if (conditionIsTrueWhen!.contains('Program'))
+{
+}
+else if (conditionIsTrueWhen!.contains('Program'))
+{
+}
+else if (conditionIsTrueWhen!.contains('Program'))
+{
+}
+else if (conditionIsTrueWhen!.contains('Program'))
+{
+}
+else if (conditionIsTrueWhen!.contains('Program'))
+{
+}
+else if (conditionIsTrueWhen!.contains('Program'))
+{
+}
+
+    return '$sNo,$name,$enablevalue,$duration,$conditionIsTrueWhen,$fromTime,$untilTime,$notification;';
+  }
+
 }
