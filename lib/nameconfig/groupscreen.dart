@@ -285,8 +285,7 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                 height: 5,
               ),
               Expanded(
-                
-                child: ListView.builder(
+                 child: ListView.builder(
                   controller: ScrollController(),
                   itemCount: jsondata['line']?.length, // Outer list item count
                   itemBuilder: (context, index) {
@@ -331,7 +330,7 @@ class _MyAppTestState extends State<MyAppTest> with ChangeNotifier {
                                     return GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          
+                                             
                                               if (groupedvalvestr != '') {
                                                
                                            if (selectline != (index + 1) ) {

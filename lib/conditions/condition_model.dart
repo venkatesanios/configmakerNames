@@ -3,8 +3,7 @@
 //     final conditionModel = conditionModelFromJson(jsonString);
 
 import 'dart:convert';
-import 'dart:html';
-
+ 
 import 'package:flutter/material.dart';
 
 ConditionModel conditionModelFromJson(String str) =>

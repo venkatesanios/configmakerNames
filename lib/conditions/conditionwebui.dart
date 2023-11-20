@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'dart:html';
-
+ 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nameconfig/conditions/Alert_message.dart';
@@ -48,13 +47,13 @@ class _ConditionwebUIState extends State<ConditionwebUI>
   List<String> operatorList = ['&&', '||', '^'];
   String selectedOperator = '';
   String selectedValue = '';
-  String selectedCondition = '';
+  String selectedCondition = ''; 
   List<String> conditionList = [];
 
   @override
   void initState() {
     super.initState();
-    MqttWebClient().init();
+    // MqttWebClient().init();
     initializeData();
   }
 
@@ -83,7 +82,7 @@ class _ConditionwebUIState extends State<ConditionwebUI>
         _conditionModel = ConditionModel.fromJson(jsondata1);
         _conditionModel.data!.dropdown!.insert(0, '');
         // changeval();
-        MqttWebClient().onSubscribed('tweet/');
+        // MqttWebClient().onSubscribed('tweet/');
       });
     } else {
       //_showSnackBar(response.body);
@@ -880,7 +879,7 @@ class _ConditionwebUIState extends State<ConditionwebUI>
         {"708": Mqttsenddata},
       ]
     });
-    MqttWebClient().publishMessage('AppToFirmware/E8FB1C3501D1', payLoadFinal);
+    // MqttWebClient().publishMessage('AppToFirmware/E8FB1C3501D1', payLoadFinal);
   }
 
   String? getSNoByName(List<UserNames> data, String name) {
