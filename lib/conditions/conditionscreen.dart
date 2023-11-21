@@ -78,8 +78,9 @@ class _ConditionUIState extends State<ConditionUI>
   @override
   void initState() {
     super.initState();
+    fetchData();
 
-    initializeData();
+    // initializeData();
   }
 
   Future<void> initializeData() async {
@@ -117,29 +118,27 @@ class _ConditionUIState extends State<ConditionUI>
         var jsondata1 = jsonDecode(response.body);
         _conditionModel = ConditionModel.fromJson(jsondata1);
         _conditionModel.data!.dropdown!.insert(0, '');
-        // changeval();
-        // MqttWebClient().onSubscribed('tweet/');
+        if (_conditionModel.data != null &&
+            _conditionModel.data!.conditionLibrary != null &&
+            _conditionModel.data!.conditionLibrary!.isNotEmpty) {
+          setState(() {
+            _tabController = TabController(
+                length: _conditionModel.data!.conditionLibrary!.length,
+                vsync: this);
+            _tabController.addListener(_handleTabSelection);
+            for (var i = 0;
+                i < _conditionModel.data!.conditionLibrary!.length;
+                i++) {
+              conditionList
+                  .add(_conditionModel.data!.conditionLibrary![i].name!);
+            }
+          });
+        }
       });
     } else {
       //_showSnackBar(response.body);
     }
   }
-
-  // Future<void> fetchData() async {
-  //   Map<String, Object> body = {"userId": '15', "controllerId": '1'};
-  //   final response = await HttpService()
-  //       .postRequest("getUserPlanningConditionLibrary", body);
-  //   print(response);
-  //   if (response.statusCode == 200) {
-  //     setState(() {
-  //       var jsondata1 = jsonDecode(response.body);
-  //       _conditionModel = ConditionModel.fromJson(jsondata1);
-  //       _conditionModel.data!.dropdown!.insert(0, '');
-  //     });
-  //   } else {
-  //     //_showSnackBar(response.body);
-  //   }
-  // }
 
   @override
   void checklistdropdown() async {
@@ -147,7 +146,7 @@ class _ConditionUIState extends State<ConditionUI>
     dropdowntitle = '';
     hint = '';
 
-    if (usedprogramdropdownstr.contains('Program')) {
+     if (usedprogramdropdownstr.contains('Program')) {
       usedprogramdropdownlist = _conditionModel.data!.program;
       dropdowntitle = 'Program';
       hint = 'Programs';
@@ -173,16 +172,11 @@ class _ConditionUIState extends State<ConditionUI>
       hint = 'Expression';
     }
     if (usedprogramdropdownlist!.isNotEmpty) {
-      if (usedprogramdropdownstr2 == '') {
-        usedprogramdropdownstr2 = usedprogramdropdownstr2 == ''
-            ? '${usedprogramdropdownlist?[0].name}'
-            : usedprogramdropdownstr2;
-      } else {
-        usedprogramdropdownstr2 = '${usedprogramdropdownlist?[0].name}';
-      }
+      usedprogramdropdownstr2 = usedprogramdropdownstr2 == ''
+          ? '${usedprogramdropdownlist?[0].name}'
+          : usedprogramdropdownstr2;
     }
-    print('usedprogramdropdownlist----- $usedprogramdropdownlist');
-  }
+   }
 
   Future<String> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -248,6 +242,7 @@ class _ConditionUIState extends State<ConditionUI>
               title: const Text('Conditions Library'),
               backgroundColor: Color.fromARGB(255, 31, 164, 231),
               bottom: TabBar(
+                controller: _tabController,
                 indicatorColor: const Color.fromARGB(255, 175, 73, 73),
                 isScrollable: true,
                 tabs: [
@@ -262,6 +257,7 @@ class _ConditionUIState extends State<ConditionUI>
                 onTap: (value) {
                   setState(() {
                     tabclickindex = value;
+                    changeval(value);
                   });
                 },
               ),
@@ -283,10 +279,11 @@ class _ConditionUIState extends State<ConditionUI>
                       ),
                     ],
                   ),
-                  child: TabBarView(children: [
+                  child: TabBarView(controller: _tabController, children: [
                     for (var i = 0;
                         i < _conditionModel.data!.conditionLibrary!.length;
                         i++)
+
                       //  dropdownvalues = _conditionModel.data!.conditionLibrary![i].dropdownValue.toString();
                       //  usedprogramdropdownstr2 = _conditionModel.data!.conditionLibrary![i].dropdown2.toString();
                       //  valueforwhentrue = _conditionModel.data!.conditionLibrary![i].dropdownvalue.toString();
@@ -572,7 +569,7 @@ class _ConditionUIState extends State<ConditionUI>
                       //     ]),
                       //   ),
                       // )
-                      buildTab(
+                      ConditionTab(
                         _conditionModel.data!.conditionLibrary![i].id,
                         i,
                       ),
@@ -618,469 +615,485 @@ class _ConditionUIState extends State<ConditionUI>
     //     _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue!;
     dropdownvalues =
         _conditionModel.data!.conditionLibrary![Selectindexrow].dropdownValue!;
-    // print('$Selectindexrow');
-    // print('changeval -usedprogramdropdownstr  $usedprogramdropdownstr');
-    // print('changeval -usedprogramdropdownstr2 $usedprogramdropdownstr2');
-    // print('changeval -dropdownvalues $dropdownvalues');
+    
     checklistdropdown();
   }
 
-  Widget buildTab(String? title, int i) {
-    print(i);
-    changeval(i);
-    String conditiontrue =
-        _conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen!;
+  Widget ConditionTab(String? title, int i) {
+    if (_tabController.index == i) {
+       String conditiontrue =
+          _conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen!;
 
-    bool containsOnlyNumbers = RegExp(r'^[0-9]+$').hasMatch(dropdownvalues);
-    bool containsOnlyOperators = RegExp(r'^[&|^]+$').hasMatch(dropdownvalues);
-
-    if ((usedprogramdropdownstr.contains('Combined') == true)) {
-      if (conditionList.contains(usedprogramdropdownstr2)) {
-        usedprogramdropdownstr2 =
-            _conditionModel.data!.conditionLibrary![i].dropdown2!;
+      bool containsOnlyNumbers = RegExp(r'^[0-9]+$').hasMatch(dropdownvalues);
+      bool containsOnlyOperators = RegExp(r'^[&|^]+$').hasMatch(dropdownvalues);
+ 
+      if ((usedprogramdropdownstr.contains('Combined') == true)) {
+        if (conditionList.contains(usedprogramdropdownstr2)) {
+          usedprogramdropdownstr2 =
+              _conditionModel.data!.conditionLibrary![i].dropdown2!;
+        } else {
+          usedprogramdropdownstr2 = "";
+        }
       } else {
-        usedprogramdropdownstr2 = "";
-      }
-    } else {
-      // if (usedprogramdropdownlist!.contains(usedprogramdropdownstr2)) {
-      //   usedprogramdropdownstr2 =
-      //       _conditionModel.data!.conditionLibrary![i].dropdown2!;
-      // } else {
-      //   if (usedprogramdropdownlist!.length > 0) {
-      //     usedprogramdropdownstr2 = '${usedprogramdropdownlist![0].name}';
-      //   }
-      // }
-     }
-    print("after i $usedprogramdropdownstr2");
+         List<String> names = usedprogramdropdownlist!
+            .map((contact) => contact.name as String)
+            .toList();
+         if (names.contains(usedprogramdropdownstr2)) {
+           usedprogramdropdownstr2 =
+              _conditionModel.data!.conditionLibrary![i].dropdown2!;
+         } else {
+           if (usedprogramdropdownlist!.length > 0) {
+            usedprogramdropdownstr2 = '${usedprogramdropdownlist![0].name}';
+           }
+        }
+        if (usedprogramdropdownstr2.isEmpty &&
+            usedprogramdropdownlist!.isNotEmpty) {
+          usedprogramdropdownstr2 = '${usedprogramdropdownlist![0].name}';
+        }
+       }
 
-    if (conditiontrue.contains("&&")) {
-      selectedOperator = "&&";
-    } else if (conditiontrue.contains("||")) {
-      selectedOperator = "||";
-    } else if (conditiontrue.contains("^")) {
-      selectedOperator = "^";
-    } else {
-      selectedOperator = "";
-    }
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 50),
-      child: SingleChildScrollView(
-        child: Column(children: [
-          Container(
-            width: double.infinity,
-            height: 40,
-            child: Center(
-                child: Text(
-                    '${i + 1}. ${_conditionModel.data!.conditionLibrary![i].id}')),
-            color: Colors.amber,
-          ),
-          Card(
-              child: ListTile(
-            title: Text(conditionhdrlist[2]),
-            trailing: Text(
-                _conditionModel.data!.conditionLibrary![i].name.toString()),
-          )),
-          Card(
-              child: ListTile(
-            title: Text(conditionhdrlist[3]),
-            trailing: MySwitch(
-              value: _conditionModel.data!.conditionLibrary![i].enable ?? false,
-              onChanged: ((value) {
-                setState(() {
-                  _conditionModel.data!.conditionLibrary![i].enable = value;
-                });
-              }),
+      if (conditiontrue.contains("&&")) {
+        selectedOperator = "&&";
+      } else if (conditiontrue.contains("||")) {
+        selectedOperator = "||";
+      } else if (conditiontrue.contains("^")) {
+        selectedOperator = "^";
+      } else {
+        selectedOperator = "";
+      }
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 50),
+        child: SingleChildScrollView(
+          child: Column(children: [
+            Container(
+              width: double.infinity,
+              height: 40,
+              child: Center(
+                  child: Text(
+                      '${i + 1}. ${_conditionModel.data!.conditionLibrary![i].id}')),
+              color: Colors.amber,
             ),
-          )),
-          Card(
-              child: ListTile(
-            title: Text(conditionhdrlist[4]),
-            trailing: Text(
-                _conditionModel.data!.conditionLibrary![i].state.toString()),
-          )),
-          Card(
-              child: ListTile(
-            title: Text(conditionhdrlist[5]),
-            trailing: Container(
-              child: InkWell(
+            Card(
+                child: ListTile(
+              title: Text(conditionhdrlist[2]),
+              trailing: Text(
+                  _conditionModel.data!.conditionLibrary![i].name.toString()),
+            )),
+            Card(
+                child: ListTile(
+              title: Text(conditionhdrlist[3]),
+              trailing: MySwitch(
+                value:
+                    _conditionModel.data!.conditionLibrary![i].enable ?? false,
+                onChanged: ((value) {
+                  setState(() {
+                    _conditionModel.data!.conditionLibrary![i].enable = value;
+                  });
+                }),
+              ),
+            )),
+            Card(
+                child: ListTile(
+              title: Text(conditionhdrlist[4]),
+              trailing: Text(
+                  _conditionModel.data!.conditionLibrary![i].state.toString()),
+            )),
+            Card(
+                child: ListTile(
+              title: Text(conditionhdrlist[5]),
+              trailing: Container(
+                child: InkWell(
+                  child: Text(
+                    '${_conditionModel.data!.conditionLibrary![i].duration}',
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  onTap: () async {
+                    String time = await _selectTime(context);
+                    setState(() {
+                      _conditionModel.data!.conditionLibrary![i].duration =
+                          time;
+                    });
+                  },
+                ),
+              ),
+            )),
+            Card(
+                child: ListTile(
+              title: Text(conditionhdrlist[6]),
+              trailing: Container(
+                  width: 200,
+                  child: Text(
+                    _conditionModel
+                        .data!.conditionLibrary![i].conditionIsTrueWhen
+                        .toString(),
+                    softWrap: true,
+                    overflow: TextOverflow.fade,
+                  )),
+            )),
+            Card(
+                child: ListTile(
+              title: Text(conditionhdrlist[10]),
+              trailing: Text(
+                _conditionModel.data!.conditionLibrary![i].usedByProgram
+                    .toString(),
+                softWrap: true,
+              ),
+            )),
+            Card(
+                child: ListTile(
+              title: Text(conditionhdrlist[7]),
+              trailing: InkWell(
                 child: Text(
-                  '${_conditionModel.data!.conditionLibrary![i].duration}',
+                  '${_conditionModel.data!.conditionLibrary![i].fromTime}',
                   style: const TextStyle(fontSize: 20),
                 ),
                 onTap: () async {
                   String time = await _selectTime(context);
                   setState(() {
-                    _conditionModel.data!.conditionLibrary![i].duration = time;
+                    _conditionModel.data!.conditionLibrary![i].fromTime = time;
                   });
                 },
               ),
-            ),
-          )),
-          //  Card(child: ListTile(title: Text('test',softWrap: true,),trailing: Text(_conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen.toString(),softWrap: true,),)),
-          Card(
-              child: ListTile(
-            title: Text(conditionhdrlist[6]),
-            trailing: Container(
-                width: 200,
-                child: Text(
-                  _conditionModel.data!.conditionLibrary![i].conditionIsTrueWhen
-                      .toString(),
-                  softWrap: true,
-                  overflow: TextOverflow.fade,
-                )),
-          )),
-          Card(
-              child: ListTile(
-            title: Text(conditionhdrlist[10]),
-            trailing: Text(
-              _conditionModel.data!.conditionLibrary![i].usedByProgram
-                  .toString(),
-              softWrap: true,
-            ),
-          )),
-          Card(
-              child: ListTile(
-            title: Text(conditionhdrlist[7]),
-            trailing: InkWell(
-              child: Text(
-                '${_conditionModel.data!.conditionLibrary![i].fromTime}',
-                style: const TextStyle(fontSize: 20),
-              ),
-              onTap: () async {
-                String time = await _selectTime(context);
-                setState(() {
-                  _conditionModel.data!.conditionLibrary![i].fromTime = time;
-                });
-              },
-            ),
-          )),
-          Card(
-              child: ListTile(
-            title: Text(conditionhdrlist[8]),
-            trailing: InkWell(
-              child: Text(
-                '${_conditionModel.data!.conditionLibrary![i].untilTime}',
-                style: const TextStyle(fontSize: 20),
-              ),
-              onTap: () async {
-                String time = await _selectTime(context);
-                setState(() {
-                  _conditionModel.data!.conditionLibrary![i].untilTime = time;
-                });
-              },
-            ),
-          )),
-          Card(
-              child: ListTile(
-            title: Text(conditionhdrlist[9]),
-            trailing: MySwitch(
-              value: _conditionModel.data!.conditionLibrary![i].notification ??
-                  false,
-              onChanged: ((value) {
-                setState(() {
-                  _conditionModel.data!.conditionLibrary![i].notification =
-                      value;
-                });
-              }),
-            ),
-          )),
-          //  Card(child: ListTile(title: Text(conditionhdrlist[9]),trailing: Text(_conditionModel.data!.conditionLibrary![i].usedByProgram.toString(),softWrap: true,),)),
-          Card(
-              child: ListTile(
-            title: Text('When Program'),
-            //First DropDown list
-            trailing: DropdownButton(
-              items: _conditionModel.data!.dropdown?.map((String? items) {
-                return DropdownMenuItem(
-                  value: items,
-                  child: Container(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Text(items!)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  usedprogramdropdownstr = value.toString();
-                  _conditionModel.data!.conditionLibrary![i].dropdown1 =
-                      value.toString();
-                  checklistdropdown();
-                });
-              },
-              value: usedprogramdropdownstr == ''
-                  ? _conditionModel
-                          .data!.conditionLibrary![i].dropdown1!.isEmpty
-                      ? (_conditionModel.data!.dropdown![0])
-                      : _conditionModel.data!.conditionLibrary![i].dropdown1!
-                          .toString()
-                  : usedprogramdropdownstr,
-            ),
-          )),
-          if (usedprogramdropdownlist?.length != 0 &&
-              usedprogramdropdownstr != 'Combined')
-            //Second DropDown list
+            )),
             Card(
                 child: ListTile(
-              title: Text(dropdowntitle),
+              title: Text(conditionhdrlist[8]),
+              trailing: InkWell(
+                child: Text(
+                  '${_conditionModel.data!.conditionLibrary![i].untilTime}',
+                  style: const TextStyle(fontSize: 20),
+                ),
+                onTap: () async {
+                  String time = await _selectTime(context);
+                  setState(() {
+                    _conditionModel.data!.conditionLibrary![i].untilTime = time;
+                  });
+                },
+              ),
+            )),
+            Card(
+                child: ListTile(
+              title: Text(conditionhdrlist[9]),
+              trailing: MySwitch(
+                value:
+                    _conditionModel.data!.conditionLibrary![i].notification ??
+                        false,
+                onChanged: ((value) {
+                  setState(() {
+                    _conditionModel.data!.conditionLibrary![i].notification =
+                        value;
+                  });
+                }),
+              ),
+            )),
+            //  Card(child: ListTile(title: Text(conditionhdrlist[9]),trailing: Text(_conditionModel.data!.conditionLibrary![i].usedByProgram.toString(),softWrap: true,),)),
+            Card(
+                child: ListTile(
+              title: Text('When Program'),
+              //First DropDown list
               trailing: DropdownButton(
-                items: usedprogramdropdownlist?.map((UserNames items) {
+                items: _conditionModel.data!.dropdown?.map((String? items) {
                   return DropdownMenuItem(
-                    value: '${items.name}',
+                    value: items,
                     child: Container(
                         padding: const EdgeInsets.only(left: 10),
-                        child: Text('${items.name}')),
+                        child: Text(items!)),
                   );
                 }).toList(),
                 onChanged: (value) {
-                  // setState(() {
-                    print(i);
-                    print(usedprogramdropdownstr2);
-                    print(value);
-                    usedprogramdropdownstr2 = value.toString();
-                    _conditionModel.data!.conditionLibrary![i].dropdown2 =
+                  setState(() {
+                    usedprogramdropdownstr = value.toString();
+                    _conditionModel.data!.conditionLibrary![i].dropdown1 =
                         value.toString();
-                  // });
+                    checklistdropdown();
+                  });
                 },
-                value: usedprogramdropdownstr2,
+                value: usedprogramdropdownstr == ''
+                    ? _conditionModel
+                            .data!.conditionLibrary![i].dropdown1!.isEmpty
+                        ? (_conditionModel.data!.dropdown![0])
+                        : _conditionModel.data!.conditionLibrary![i].dropdown1!
+                            .toString()
+                    : usedprogramdropdownstr,
               ),
             )),
-          //Values
-          if (usedprogramdropdownstr.contains('Sensor') ||
-              usedprogramdropdownstr.contains('Contact') ||
-              usedprogramdropdownstr.contains('Water'))
-            Card(
-                child: ListTile(
-              title: Text('Values'),
-              trailing: Container(
-                height: 40,
-                width: 200,
-                child: TextFormField(
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  initialValue:
-                      _conditionModel.data!.conditionLibrary![i].dropdownValue,
-                  showCursor: true,
-                  decoration: InputDecoration(hintText: hint),
+            if (usedprogramdropdownlist?.length != 0 &&
+                usedprogramdropdownstr != 'Combined')
+              //Second DropDown list
+              Card(
+                  child: ListTile(
+                title: Text(dropdowntitle),
+                trailing: DropdownButton(
+                  items: usedprogramdropdownlist?.map((UserNames items) {
+                    return DropdownMenuItem(
+                      value: '${items.name}',
+                      child: Container(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text('${items.name}')),
+                    );
+                  }).toList(),
                   onChanged: (value) {
-                    valueforwhentrue = value;
-                    validator:
-                    (value) {
-                      if (value == null || value.isEmpty) {
-                        valueforwhentrue = '0';
-                      } else {
-                        valueforwhentrue = value;
-                        _conditionModel
-                            .data!.conditionLibrary![i].dropdownValue = value;
-                      }
-                      return null;
-                    };
+                    setState(() {
+                       usedprogramdropdownstr2 = value.toString();
+                      _conditionModel.data!.conditionLibrary![i].dropdown2 =
+                          value;
+                    
+                    });
                   },
+                  value: usedprogramdropdownstr2,
                 ),
-              ),
-            )),
-          if (usedprogramdropdownstr.contains('Combined'))
-            //Select operator
-            Card(
-                child: ListTile(
-              title: Text('Select Operator'),
-              trailing: DropdownButton<String>(
-                value: containsOnlyOperators ? dropdownvalues : null,
-                hint: Text('Select Operator'),
-                onChanged: (value) {
+              )),
+            //Values
+            if (usedprogramdropdownstr.contains('Sensor') ||
+                usedprogramdropdownstr.contains('Contact') ||
+                usedprogramdropdownstr.contains('Water'))
+              Card(
+                  child: ListTile(
+                title: Text('Values'),
+                trailing: Container(
+                  height: 40,
+                  width: 200,
+                  child: TextFormField(
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    initialValue: _conditionModel
+                        .data!.conditionLibrary![i].dropdownValue,
+                    showCursor: true,
+                    decoration: InputDecoration(hintText: hint),
+                    onChanged: (value) {
+                      valueforwhentrue = value;
+                      validator:
+                      (value) {
+                        if (value == null || value.isEmpty) {
+                          valueforwhentrue = '0';
+                        } else {
+                          valueforwhentrue = value;
+                          _conditionModel
+                              .data!.conditionLibrary![i].dropdownValue = value;
+                        }
+                        return null;
+                      };
+                    },
+                  ),
+                ),
+              )),
+            if (usedprogramdropdownstr.contains('Combined'))
+              //Select operator
+              Card(
+                  child: ListTile(
+                title: Text('Select Operator'),
+                trailing: DropdownButton<String>(
+                  value: containsOnlyOperators ? dropdownvalues : null,
+                  hint: Text('Select Operator'),
+                  onChanged: (value) {
+                    setState(() {
+                      dropdownvalues = value!;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdownValue = value!;
+                    });
+                  },
+                  items: operatorList.map((operator) {
+                    return DropdownMenuItem(
+                      value: operator,
+                      child: Text(operator),
+                    );
+                  }).toList(),
+                ),
+              )),
+            if (usedprogramdropdownstr.contains('Combined'))
+              Card(
+                  child: ListTile(
+                title: Text('Select Conditions'),
+                trailing: DropdownButton<String>(
+                  value: usedprogramdropdownstr2.isEmpty
+                      ? null
+                      : usedprogramdropdownstr2,
+                  hint: Text('$usedprogramdropdownstr2'),
+                  onChanged: (value) {
+                    setState(() {
+                      usedprogramdropdownstr2 = value!;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown2 = value!;
+                    });
+                  },
+                  items:
+                      filterlist(conditionList, conditionList[Selectindexrow])
+                          .map((condition) {
+                    return DropdownMenuItem(
+                      value: condition,
+                      child: Text(condition),
+                    );
+                  }).toList(),
+                ),
+              )),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+                onPressed: () {
                   setState(() {
-                    dropdownvalues = value!;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdownValue = value!;
+                     if (usedprogramdropdownstr.contains('Program')) {
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                              .conditionIsTrueWhen =
+                          conditionselection(usedprogramdropdownstr,
+                              usedprogramdropdownstr2, '');
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown1 = usedprogramdropdownstr;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown2 = usedprogramdropdownstr2;
+                      // _conditionModel.data!.conditionLibrary![Selectindexrow]
+                      //     .dropdownValue = '';
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .usedByProgram = programstr;
+
+                      List<UserNames>? program = _conditionModel.data!.program!;
+                      if (program != null) {
+                        String? sNo =
+                            getSNoByName(program, usedprogramdropdownstr2);
+                        if (sNo != null) {
+                          _conditionModel
+                              .data!
+                              .conditionLibrary![Selectindexrow]
+                              .program = '$sNo';
+                        } else {
+                          _conditionModel.data!
+                              .conditionLibrary![Selectindexrow].program = '0';
+                        }
+                      }
+                    } else if (usedprogramdropdownstr.contains('Contact')) {
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                              .conditionIsTrueWhen =
+                          conditionselection(usedprogramdropdownstr,
+                              usedprogramdropdownstr2, '');
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown1 = usedprogramdropdownstr;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown2 = usedprogramdropdownstr2;
+                      // _conditionModel.data!.conditionLibrary![Selectindexrow]
+                      //     .dropdownValue = '';
+                      List<UserNames>? program = _conditionModel.data!.contact!;
+                      if (program != null) {
+                        String? sNo =
+                            getSNoByName(program, usedprogramdropdownstr2);
+                        if (sNo != null) {
+                          _conditionModel
+                              .data!
+                              .conditionLibrary![Selectindexrow]
+                              .program = '$sNo';
+                        } else {
+                          _conditionModel.data!
+                              .conditionLibrary![Selectindexrow].program = '0';
+                        }
+                      }
+                    } else if (usedprogramdropdownstr.contains('Sensor')) {
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                              .conditionIsTrueWhen =
+                          conditionselection(usedprogramdropdownstr,
+                              usedprogramdropdownstr2, dropdownvalues);
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown1 = usedprogramdropdownstr;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown2 = usedprogramdropdownstr2;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdownValue = dropdownvalues;
+                      List<UserNames>? program =
+                          _conditionModel.data!.analogSensor!;
+                      if (program != null) {
+                        String? sNo =
+                            getSNoByName(program, usedprogramdropdownstr2);
+                        if (sNo != null) {
+                          _conditionModel
+                              .data!
+                              .conditionLibrary![Selectindexrow]
+                              .program = '$sNo';
+                        } else {
+                          _conditionModel.data!
+                              .conditionLibrary![Selectindexrow].program = '0';
+                        }
+                      }
+                    } else if (usedprogramdropdownstr.contains('Water')) {
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .conditionIsTrueWhen = usedprogramdropdownstr;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown1 = usedprogramdropdownstr;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown2 = usedprogramdropdownstr2;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdownValue = dropdownvalues;
+                      List<UserNames>? program =
+                          _conditionModel.data!.waterMeter!;
+                      if (program != null) {
+                        String? sNo =
+                            getSNoByName(program, usedprogramdropdownstr2);
+                        if (sNo != null) {
+                          _conditionModel
+                              .data!
+                              .conditionLibrary![Selectindexrow]
+                              .program = '$sNo';
+                        } else {
+                          _conditionModel.data!
+                              .conditionLibrary![Selectindexrow].program = '0';
+                        }
+                      }
+                    } else if (usedprogramdropdownstr.contains('condition')) {
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                              .conditionIsTrueWhen =
+                          '$usedprogramdropdownstr ${conditionList[Selectindexrow]} $dropdownvalues $usedprogramdropdownstr2';
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown1 = usedprogramdropdownstr;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown2 = usedprogramdropdownstr2;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdownValue = dropdownvalues;
+                      // _conditionModel.data!.conditionLibrary![Selectindexrow].program = dropdownvalues;
+
+                      List<ConditionLibrary>? program =
+                          _conditionModel.data!.conditionLibrary;
+                      if (program != null) {
+                        String? sNo = getSNoByNamecondition(
+                            program, usedprogramdropdownstr2);
+                        if (sNo != null) {
+                          _conditionModel
+                              .data!
+                              .conditionLibrary![Selectindexrow]
+                              .program = '$sNo';
+                        } else {
+                          _conditionModel.data!
+                              .conditionLibrary![Selectindexrow].program = '0';
+                        }
+                      }
+                    } else if (usedprogramdropdownstr.contains('Zone')) {
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .conditionIsTrueWhen = usedprogramdropdownstr;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown1 = usedprogramdropdownstr;
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown2 = '';
+                      // _conditionModel.data!.conditionLibrary![Selectindexrow]
+                      //     .dropdownValue = '';
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .program = '0';
+                    } else {
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .conditionIsTrueWhen = '';
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown1 = '';
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .dropdown2 = '';
+                      // _conditionModel.data!.conditionLibrary![Selectindexrow]
+                      //     .dropdownValue = '';
+                      _conditionModel.data!.conditionLibrary![Selectindexrow]
+                          .program = '0';
+                    }
                   });
                 },
-                items: operatorList.map((operator) {
-                  return DropdownMenuItem(
-                    value: operator,
-                    child: Text(operator),
-                  );
-                }).toList(),
-              ),
-            )),
-          if (usedprogramdropdownstr.contains('Combined'))
-            Card(
-                child: ListTile(
-              title: Text('Select Conditions'),
-              trailing: DropdownButton<String>(
-                value: usedprogramdropdownstr2.isEmpty
-                    ? null
-                    : usedprogramdropdownstr2,
-                hint: Text('$usedprogramdropdownstr2'),
-                onChanged: (value) {
-                  setState(() {
-                    usedprogramdropdownstr2 = value!;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown2 = value!;
-                  });
-                },
-                items: filterlist(conditionList, conditionList[Selectindexrow])
-                    .map((condition) {
-                  return DropdownMenuItem(
-                    value: condition,
-                    child: Text(condition),
-                  );
-                }).toList(),
-              ),
-            )),
-          const SizedBox(
-            height: 20,
-          ),
-          ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  if (usedprogramdropdownstr.contains('Program')) {
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .conditionIsTrueWhen =
-                        conditionselection(usedprogramdropdownstr,
-                            usedprogramdropdownstr2, '');
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown1 = usedprogramdropdownstr;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown2 = usedprogramdropdownstr2;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdownValue = '';
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .usedByProgram = programstr;
-
-                    List<UserNames>? program = _conditionModel.data!.program!;
-                    if (program != null) {
-                      String? sNo =
-                          getSNoByName(program, usedprogramdropdownstr2);
-                      if (sNo != null) {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '$sNo';
-                      } else {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '0';
-                      }
-                    }
-                  } else if (usedprogramdropdownstr.contains('Contact')) {
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .conditionIsTrueWhen =
-                        conditionselection(usedprogramdropdownstr,
-                            usedprogramdropdownstr2, '');
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown1 = usedprogramdropdownstr;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown2 = usedprogramdropdownstr2;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdownValue = '';
-                    List<UserNames>? program = _conditionModel.data!.contact!;
-                    if (program != null) {
-                      String? sNo =
-                          getSNoByName(program, usedprogramdropdownstr2);
-                      if (sNo != null) {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '$sNo';
-                      } else {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '0';
-                      }
-                    }
-                  } else if (usedprogramdropdownstr.contains('Sensor')) {
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .conditionIsTrueWhen =
-                        conditionselection(usedprogramdropdownstr,
-                            usedprogramdropdownstr2, dropdownvalues);
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown1 = usedprogramdropdownstr;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown2 = usedprogramdropdownstr2;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdownValue = dropdownvalues;
-                    List<UserNames>? program =
-                        _conditionModel.data!.analogSensor!;
-                    if (program != null) {
-                      String? sNo =
-                          getSNoByName(program, usedprogramdropdownstr2);
-                      if (sNo != null) {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '$sNo';
-                      } else {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '0';
-                      }
-                    }
-                  } else if (usedprogramdropdownstr.contains('Water')) {
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .conditionIsTrueWhen = usedprogramdropdownstr;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown1 = usedprogramdropdownstr;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown2 = usedprogramdropdownstr2;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdownValue = dropdownvalues;
-                    List<UserNames>? program =
-                        _conditionModel.data!.waterMeter!;
-                    if (program != null) {
-                      String? sNo =
-                          getSNoByName(program, usedprogramdropdownstr2);
-                      if (sNo != null) {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '$sNo';
-                      } else {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '0';
-                      }
-                    }
-                  } else if (usedprogramdropdownstr.contains('condition')) {
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .conditionIsTrueWhen =
-                        '$usedprogramdropdownstr ${conditionList[Selectindexrow]} $dropdownvalues $usedprogramdropdownstr2';
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown1 = usedprogramdropdownstr;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown2 = usedprogramdropdownstr2;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdownValue = dropdownvalues;
-                    // _conditionModel.data!.conditionLibrary![Selectindexrow].program = dropdownvalues;
-
-                    List<ConditionLibrary>? program =
-                        _conditionModel.data!.conditionLibrary;
-                    if (program != null) {
-                      String? sNo = getSNoByNamecondition(
-                          program, usedprogramdropdownstr2);
-                      if (sNo != null) {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '$sNo';
-                      } else {
-                        _conditionModel.data!.conditionLibrary![Selectindexrow]
-                            .program = '0';
-                      }
-                    }
-                  } else if (usedprogramdropdownstr.contains('Zone')) {
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .conditionIsTrueWhen = usedprogramdropdownstr;
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdown1 = usedprogramdropdownstr;
-                    _conditionModel
-                        .data!.conditionLibrary![Selectindexrow].dropdown2 = '';
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdownValue = '';
-                    _conditionModel
-                        .data!.conditionLibrary![Selectindexrow].program = '0';
-                  } else {
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .conditionIsTrueWhen = '';
-                    _conditionModel
-                        .data!.conditionLibrary![Selectindexrow].dropdown1 = '';
-                    _conditionModel
-                        .data!.conditionLibrary![Selectindexrow].dropdown2 = '';
-                    _conditionModel.data!.conditionLibrary![Selectindexrow]
-                        .dropdownValue = '';
-                    _conditionModel
-                        .data!.conditionLibrary![Selectindexrow].program = '0';
-                  }
-                });
-              },
-              child: const Text('Apply Changes'))
-          //  TextButton(onPressed: (){}, child: Text('Apply')),
-        ]),
-      ),
-    );
+                child: const Text('Apply Changes'))
+            //  TextButton(onPressed: (){}, child: Text('Apply')),
+          ]),
+        ),
+      );
+    } else
+      return Center();
   }
 
   updateconditions() async {
@@ -1091,7 +1104,7 @@ class _ConditionUIState extends State<ConditionUI>
     String Mqttsenddata = toMqttformat(_conditionModel.data!.conditionLibrary);
 
     Map<String, Object> body = {
-      "userId": '1',
+      "userId": '15',
       "controllerId": "1",
       "condition": conditionJson,
       "createUser": "1"
@@ -1111,7 +1124,7 @@ class _ConditionUIState extends State<ConditionUI>
   String? getSNoByName(List<UserNames> data, String name) {
     UserNames? user = data.firstWhere((element) => element.name == name,
         orElse: () => UserNames());
-    return user.sNo;
+    return user.sNo.toString();
   }
 
   String? getSNoByNamecondition(List<ConditionLibrary>? data, String name) {
@@ -1220,7 +1233,6 @@ class _ConditionUIState extends State<ConditionUI>
       Mqttdata +=
           '${data[i].sNo},${data[i].name},$enablevalue,${data[i].duration}:00,${data[i].fromTime}:00,${data[i].untilTime}:00,$Notifigation,$conditionIsTrueWhenvalue;';
     }
-    print('Mqttdata--------------$Mqttdata');
-    return Mqttdata;
+     return Mqttdata;
   }
 }

@@ -1,5 +1,3 @@
-
-/*
 import 'dart:async';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
@@ -7,28 +5,31 @@ import 'package:mqtt_client/mqtt_browser_client.dart';
 final client = MqttBrowserClient('ws://192.168.1.141', '');
 
 class MqttWebClient {
-
-  Future<int> init() async
-  {
+  Future<int> init() async {
     client.logging(on: false);
     client.setProtocolV311();
 
     /// If you intend to use a keep alive you must set it here otherwise keep alive will be disabled.
     client.keepAlivePeriod = 20;
+
     /// The connection timeout period can be set if needed, the default is 5 seconds.
     client.connectTimeoutPeriod = 2000; // milliseconds
     /// The ws port for Mosquitto is 9001, for wss it is 8080
     client.port = 9001;
+
     /// Add the unsolicited disconnection callback
     client.onDisconnected = onDisconnected;
+
     /// Add the successful connection callback
     client.onConnected = onConnected;
+
     /// Add a subscribed callback, there is also an unsubscribed callback if you need it.
     /// You can add these before connection or change them dynamically after connection if
     /// you wish. There is also an onSubscribeFail callback for failed subscriptions, these
     /// can fail either because you have tried to subscribe to an invalid topic or the broker
     /// rejects the subscribe request.
     client.onSubscribed = onSubscribed;
+
     /// Set a ping received callback if needed, called whenever a ping response(pong) is received
     /// from the broker.
 
@@ -38,12 +39,14 @@ class MqttWebClient {
     /// Mosquito uses the single default header, other brokers may be fine with the
     /// default headers.
     client.websocketProtocols = MqttClientConstants.protocolsSingleDefault;
+
     /// Create a connection message to use or use the default one. The default one sets the
     /// client identifier, any supplied username/password and clean session,
     /// an example of a specific one below.
     final connMess = MqttConnectMessage()
         .withClientIdentifier('Mqtt_MyClientUniqueId')
-        .withWillTopic('will-topic') // If you set this you must set a will message
+        .withWillTopic(
+            'will-topic') // If you set this you must set a will message
         .withWillMessage('My Will message')
         .startClean() // Non persistent session for testing
         .withWillQos(MqttQos.atLeastOnce);
@@ -71,7 +74,8 @@ class MqttWebClient {
       print('Mosquitto client connected');
     } else {
       /// Use status here rather than state if you also want the broker return code.
-      print('ERROR Mosquitto client connection failed - disconnecting, status is ${client.connectionStatus}');
+      print(
+          'ERROR Mosquitto client connection failed - disconnecting, status is ${client.connectionStatus}');
       client.disconnect();
     }
 
@@ -84,14 +88,16 @@ class MqttWebClient {
     /// notifications of published updates to each subscribed topic.
     client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
       final recMess = c![0].payload as MqttPublishMessage;
-      final pt =  MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      final pt =
+          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
       /// The above may seem a little convoluted for users only interested in the
       /// payload, some users however may be interested in the received publish message,
       /// lets not constrain ourselves yet until the package has been in the wild
       /// for a while.
       /// The payload is a byte buffer, this will be specific to the topic
-      print('Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
+      print(
+          'Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
       print('');
     });
 
@@ -99,7 +105,8 @@ class MqttWebClient {
     /// handshake which is Qos dependant. Any message received on this stream has completed its
     /// publishing handshake with the broker.
     client.published!.listen((MqttPublishMessage message) {
-      print('Published notification:: topic is ${message.variableHeader!.topicName}, with Qos ${message.header!.qos}');
+      print(
+          'Published notification:: topic is ${message.variableHeader!.topicName}, with Qos ${message.header!.qos}');
     });
 
     /// Lets publish to our topic
@@ -132,8 +139,8 @@ class MqttWebClient {
     //client.disconnect();
   }
 
-  Future<void> publishMessage(String topic, String message, {bool retain = true}) async
-  {
+  Future<void> publishMessage(String topic, String message,
+      {bool retain = true}) async {
     if (client.connectionStatus?.state == MqttConnectionState.connected) {
       print('Subscription confirmed for topic $topic');
       final builder = MqttClientPayloadBuilder();
@@ -142,7 +149,6 @@ class MqttWebClient {
     } else {
       print("MQTT client is not connected.");
     }
-
   }
 
   /// The subscribed callback
@@ -157,11 +163,12 @@ class MqttWebClient {
   /// The unsolicited disconnect callback
   Future<void> onDisconnected() async {
     print('OnDisconnected client callback - Client disconnection');
-    if (client.connectionStatus!.disconnectionOrigin == MqttDisconnectionOrigin.solicited) {
+    if (client.connectionStatus!.disconnectionOrigin ==
+        MqttDisconnectionOrigin.solicited) {
       print('OnDisconnected callback is solicited, this is correct');
     }
     //main();
-     // Uncomment this line to automatically reconnect
+    // Uncomment this line to automatically reconnect
   }
 
   /// The successful connect callback
@@ -174,5 +181,3 @@ class MqttWebClient {
     print('Ping response client callback invoked');
   }
 }
-
-*/
