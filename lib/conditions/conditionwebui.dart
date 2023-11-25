@@ -449,7 +449,6 @@ class _ConditionwebUIState extends State<ConditionwebUI>
                                                 'data',
                                               )))
                                     ],
-                                   
                                   )))),
                 ),
               ),
@@ -492,10 +491,8 @@ class _ConditionwebUIState extends State<ConditionwebUI>
           .map((contact) => contact.name as String)
           .toList();
       if (names.contains(usedprogramdropdownstr2)) {
-     
         usedprogramdropdownstr2 = usedprogramdropdownstr2;
       } else {
-       
         if (usedprogramdropdownlist!.length > 0) {
           usedprogramdropdownstr2 = '${usedprogramdropdownlist![0].name}';
         }
@@ -505,7 +502,6 @@ class _ConditionwebUIState extends State<ConditionwebUI>
         usedprogramdropdownlist!.isNotEmpty) {
       usedprogramdropdownstr2 = '${usedprogramdropdownlist![0].name}';
     }
-    
 
     if (conditiontrue.contains("&&")) {
       selectedOperator = "&&";
@@ -587,11 +583,9 @@ class _ConditionwebUIState extends State<ConditionwebUI>
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
-                  
                     usedprogramdropdownstr2 = value.toString();
                     _conditionModel.data!.conditionLibrary![Selectindexrow]
                         .dropdown2 = value.toString();
-                    
                   });
                 },
                 value: usedprogramdropdownstr2,
@@ -681,7 +675,6 @@ class _ConditionwebUIState extends State<ConditionwebUI>
             ElevatedButton(
                 onPressed: () {
                   setState(() {
-                  
                     if (usedprogramdropdownstr.contains('Program')) {
                       _conditionModel.data!.conditionLibrary![Selectindexrow]
                               .conditionIsTrueWhen =
@@ -863,26 +856,42 @@ class _ConditionwebUIState extends State<ConditionwebUI>
   }
 
   updateconditions() async {
-     List<Map<String, dynamic>> conditionJson = _conditionModel
+    List<Map<String, dynamic>> conditionJson = _conditionModel
         .data!.conditionLibrary!
         .map((condition) => condition.toJson())
         .toList();
 
     String Mqttsenddata = toMqttformat(_conditionModel.data!.conditionLibrary);
-     Map<String, Object> body = {
+    Map<String, Object> body = {
       "userId": '15',
       "controllerId": "1",
       "condition": conditionJson,
       "createUser": "1"
     };
-     final response = await HttpService()
+    final response = await HttpService()
         .postRequest("createUserPlanningConditionLibrary", body);
     final jsonDataresponse = json.decode(response.body);
     AlertDialogHelper.showAlert(context, '', jsonDataresponse['message']);
- 
+
     String payLoadFinal = jsonEncode({
       "700": [
+        {"701": ''},
+        {"702": ''},
+        {"703": ''},
+        {"704": ''},
+        {"705": ''},
+        {"706": ''},
+        {"707": ''},
         {"708": Mqttsenddata},
+        {"709": ''},
+        {"710": ''},
+        {"711": ''},
+        {"712": ''},
+        {"713": ''},
+        {"714": ''},
+        {"715": ''},
+        {"716": ''},
+
       ]
     });
     MqttWebClient().publishMessage('AppToFirmware/E8FB1C3501D1', payLoadFinal);
@@ -909,7 +918,7 @@ class _ConditionwebUIState extends State<ConditionwebUI>
       String Notifigation = data[i].notification! ? '1' : '0';
       String conditionIsTrueWhenvalue = '0,0,0,0';
       String Combine = '';
- 
+
       if (data[i].conditionIsTrueWhen!.contains('Program')) {
         if (data[i].conditionIsTrueWhen!.contains('running')) {
           conditionIsTrueWhenvalue = "1,1,${data[i].program},0";

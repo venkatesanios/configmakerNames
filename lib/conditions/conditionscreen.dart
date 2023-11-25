@@ -1102,7 +1102,6 @@ class _ConditionUIState extends State<ConditionUI>
         .map((condition) => condition.toJson())
         .toList();
     String Mqttsenddata = toMqttformat(_conditionModel.data!.conditionLibrary);
-
     Map<String, Object> body = {
       "userId": '15',
       "controllerId": "1",
