@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:nameconfig/Frost/frost_productionScreen.dart';
 import 'package:nameconfig/conditions/conditionscreen.dart';
 import 'package:nameconfig/nameconfig/alert.dart';
-import 'package:nameconfig/nameconfig/group_provider.dart';
+import 'package:nameconfig/group/group_provider.dart';
 import 'package:nameconfig/nameconfig/myapp.dart';
-import 'package:nameconfig/nameconfig/groupscreen.dart';
+import 'package:nameconfig/group/groupscreen.dart';
 import 'package:nameconfig/nameconfig/net.dart';
 import 'package:nameconfig/nameconfig/test.dart';
 import 'package:nameconfig/pick.dart';
@@ -35,9 +35,10 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
         debugShowCheckedModeBanner: false,
-        home: FrostScreenWidget(),
+        // home: FrostScreenWidget(),
         //  home: ConditionScreenWidget(),
         //ConditionScreenWidget
+         home: MyAppTest(),
       ),
     );
   }
